@@ -18,7 +18,7 @@ const errorResponses = {
   },
 };
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler2 = (err, req, res, next) => {
   const statusCode = res.statusCode || 500;
 
   if (errorResponses[statusCode]) {
@@ -32,4 +32,4 @@ const errorHandler = (err, req, res, next) => {
   }
 };
 
-module.exports = errorHandler;
+module.exports = errorHandler2;

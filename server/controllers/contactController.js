@@ -1,33 +1,32 @@
 const asyncHandler = require("express-async-handler");
+const Contact = require("../models/contactModal");
 
 //@desc Get all contacts
 // @route GET /api/contacts
 // @access Public
 
 const getContacts = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Get all contacts" });
+  const contacts = await Contact.find();
+  res.status(200).json(contacts);
 });
 
-//@desc Create a new contact
+//@desc Create New contact
 //@route POST /api/contacts
 //@access Public
-
 const createContact = asyncHandler(async (req, res) => {
-  // You can access the data from the request body using req.body
-  console.log("The requested body is", req.body);
-
-  // Check if the required fields are empty
-  if (!req.body.name || !req.body.email || !req.body.phone) {
-    return res.status(400).json({ error: "All fields are mandatory" });
+  console.log("The request body is :", req.body);
+  const { name, email, phone } = req.body;
+  if (!name || !email || !phone) {
+    res.status(400);
+    throw new Error("All fields are mandatory !");
   }
+  const contact = await Contact.create({
+    name,
+    email,
+    phone,
+  });
 
-  // If all fields are provided, you can proceed to save the new contact to your database
-  const newContact = req.body;
-
-  // Here, you can add code to save the new contact to your database
-  // For example, you can use a database library like Mongoose for MongoDB
-
-  res.status(201).json({ message: "Create contact" });
+  res.status(201).json({ success: true, data: contact });
 });
 
 //@desc Get a specific contact by ID
@@ -36,7 +35,17 @@ const createContact = asyncHandler(async (req, res) => {
 
 const getContactById = asyncHandler(async (req, res) => {
   const contactId = req.params.id;
-  res.status(200).json({ message: `Get contact for ID ${contactId}` });
+
+  // Assuming you want to retrieve a contact by its ID from the database
+  const contact = await Contact.findById(contactId);
+
+  if (!contact) {
+    return res
+      .status(404)
+      .json({ error: `Contact with ID ${contactId} not found` });
+  }
+
+  res.status(200).json({ success: true, data: contact });
 });
 
 //@desc Update a specific contact by ID
@@ -45,22 +54,54 @@ const getContactById = asyncHandler(async (req, res) => {
 
 const updateContactById = asyncHandler(async (req, res) => {
   const contactId = req.params.id;
-  // You can access the updated data from the request body using req.body
+  const { name, email, phone } = req.body;
 
-  // Here, you can add code to update the contact with the given ID in your database
+  // Assuming you want to update a contact by its ID in the database
+  let contact = await Contact.findById(contactId);
 
-  res.status(200).json({ message: `Update contact for ID ${contactId}` });
+  if (!contact) {
+    return res
+      .status(404)
+      .json({ error: `Contact with ID ${contactId} not found` });
+  }
+
+  // Update the contact properties if provided in the request
+  if (name) {
+    contact.name = name;
+  }
+  if (email) {
+    contact.email = email;
+  }
+  if (phone) {
+    contact.phone = phone;
+  }
+
+  // Save the updated contact in the database
+  contact = await contact.save();
+
+  res.status(200).json({ success: true, data: contact });
 });
 
 //@desc Delete a specific contact by ID
 // @route DELETE /api/contacts/:id
 // @access Public
-
 const deleteContactById = asyncHandler(async (req, res) => {
-  const contactId = req.params.id;
-  // Here, you can add code to delete the contact with the given ID from your database
+  try {
+    // Assuming you want to delete a contact by its ID in the database
+    const contact = await Contact.findById(req.params.id);
 
-  res.status(200).json({ message: `Delete contact for ID ${contactId}` });
+    if (!contact) {
+      res.status(404).json({ error: "Contact not found" });
+      return;
+    }
+
+    // Delete the contact from the database using the deleteOne method
+    await Contact.deleteOne({ _id: contact._id });
+
+    res.status(200).json({ message: "Contact deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = {
