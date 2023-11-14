@@ -3,16 +3,16 @@ const Contact = require("../models/contactModal");
 
 //@desc Get all contacts
 // @route GET /api/contacts
-// @access Public
+// @access private
 
 const getContacts = asyncHandler(async (req, res) => {
-  const contacts = await Contact.find();
+  const contacts = await Contact.find({ user_id: req.user.id });
   res.status(200).json(contacts);
 });
 
 //@desc Create New contact
 //@route POST /api/contacts
-//@access Public
+//@access private
 const createContact = asyncHandler(async (req, res) => {
   console.log("The request body is :", req.body);
   const { name, email, phone } = req.body;
@@ -24,6 +24,7 @@ const createContact = asyncHandler(async (req, res) => {
     name,
     email,
     phone,
+    user_id: req.user.id,
   });
 
   res.status(201).json({ success: true, data: contact });
@@ -31,7 +32,7 @@ const createContact = asyncHandler(async (req, res) => {
 
 //@desc Get a specific contact by ID
 // @route GET /api/contacts/:id
-// @access Public
+// @access private
 
 const getContactById = asyncHandler(async (req, res) => {
   const contactId = req.params.id;
@@ -50,7 +51,7 @@ const getContactById = asyncHandler(async (req, res) => {
 
 //@desc Update a specific contact by ID
 // @route PUT /api/contacts/:id
-// @access Public
+// @access private
 
 const updateContactById = asyncHandler(async (req, res) => {
   const contactId = req.params.id;
@@ -59,7 +60,7 @@ const updateContactById = asyncHandler(async (req, res) => {
   // Assuming you want to update a contact by its ID in the database
   let contact = await Contact.findById(contactId);
 
-  if (!contact) {
+  if (contact.user_id.toString() !== req.user.id) {
     return res
       .status(404)
       .json({ error: `Contact with ID ${contactId} not found` });
@@ -84,7 +85,7 @@ const updateContactById = asyncHandler(async (req, res) => {
 
 //@desc Delete a specific contact by ID
 // @route DELETE /api/contacts/:id
-// @access Public
+// @access private
 const deleteContactById = asyncHandler(async (req, res) => {
   try {
     // Assuming you want to delete a contact by its ID in the database

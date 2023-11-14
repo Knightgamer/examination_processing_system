@@ -5,6 +5,7 @@ const contactSchema = mongoose.Schema(
     name: {
       type: String,
       required: [true, "Please add the contact name"],
+      ref: "User",
     },
     email: {
       type: String,

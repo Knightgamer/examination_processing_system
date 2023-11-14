@@ -18,7 +18,9 @@ app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-app.use("/api/contacts", require("./routes/contactRoutes"));
+app.use("/contacts", require("./routes/contactRoutes"));
+app.use("/users", require("./routes/userRoutes"));
+
 app.use(errorHandler);
 
 app.listen(port, () => {
