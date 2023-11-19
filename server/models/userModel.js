@@ -28,6 +28,7 @@ const userSchema = mongoose.Schema(
       enum: ["student", "lecturer", "administrator"],
       default: "student",
     },
+    
   },
   {
     timestamps: true,
