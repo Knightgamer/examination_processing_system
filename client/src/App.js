@@ -11,45 +11,56 @@ import StudentDashboard from "./components/pages/students/HomePage";
 import LecturerDashboard from "./components/pages/teachers/HomePage";
 
 function App() {
-  // State to hold the current user's role
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Effect to update the role when localStorage changes
+  // Function to check if the user is authenticated (has a valid token)
+  const checkAuthentication = () => {
+    const token = localStorage.getItem("token");
+    return !!token; // Convert to boolean: true if token exists, false otherwise
+  };
+
   useEffect(() => {
+    setIsAuthenticated(checkAuthentication());
+
     const handleStorageChange = () => {
       setUserRole(localStorage.getItem("userRole"));
+      setIsAuthenticated(checkAuthentication());
     };
 
     window.addEventListener("storage", handleStorageChange);
-
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        {/* <Route path="/register" element={<Register />} /> */}
 
-        {/* Routes for logged-in users */}
-        {userRole === "student" && (
+        {/* Protected Routes for logged-in users */}
+        {isAuthenticated && userRole === "student" && (
           <Route path="/home" element={<StudentDashboard />} />
         )}
-        {userRole === "lecturer" && (
+        {isAuthenticated && userRole === "lecturer" && (
           <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
         )}
-        {userRole === "administrator" && (
+        {isAuthenticated && userRole === "administrator" && (
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         )}
 
-        {/* Redirect or Default Route */}
+        {/* Redirect to Login or Appropriate Dashboard based on Authentication and Role */}
         <Route
           path="*"
           element={
-            <Navigate
-              to={userRole === "administrator" ? "/admin/dashboard" : "/home"}
-            />
+            isAuthenticated ? (
+              <Navigate
+                to={userRole === "administrator" ? "/admin/dashboard" : "/home"}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
           }
         />
       </Routes>

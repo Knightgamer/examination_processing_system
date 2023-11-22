@@ -147,6 +147,8 @@ const Navigation = () => {
             )}
           </div>
         </nav>
+        {/* Main content area */}
+        <div className="flex-1 p-5">{/* Content goes here */}</div>
       </div>
     </div>
   );
