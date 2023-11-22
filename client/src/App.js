@@ -6,18 +6,52 @@ import {
   Navigate,
 } from "react-router-dom";
 import LoginPage from "./components/pages/LoginPage";
-import AdministratorHomePage from "./components/pages/admin/HomePage";
-import StudentHomePage from "./components/pages/students/HomePage";
-import LecturerHomePage from "./components/pages/teachers/HomePage";
+import AdminDashboard from "./components/pages/admin/HomePage";
+import StudentDashboard from "./components/pages/students/HomePage";
+import LecturerDashboard from "./components/pages/teachers/HomePage";
 
 function App() {
+  // State to hold the current user's role
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
+
+  // Effect to update the role when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUserRole(localStorage.getItem("userRole"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/student/home" element={<StudentHomePage />} />
-        <Route path="/lecturer/home" element={<LecturerHomePage />} />
-        <Route path="/administrator/home" element={<AdministratorHomePage />} />
+        <Route path="/" element={<LoginPage />} />
+        {/* <Route path="/register" element={<Register />} /> */}
+
+        {/* Routes for logged-in users */}
+        {userRole === "student" && (
+          <Route path="/home" element={<StudentDashboard />} />
+        )}
+        {userRole === "lecturer" && (
+          <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
+        )}
+        {userRole === "administrator" && (
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        )}
+
+        {/* Redirect or Default Route */}
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to={userRole === "administrator" ? "/admin/dashboard" : "/home"}
+            />
+          }
+        />
       </Routes>
     </Router>
   );

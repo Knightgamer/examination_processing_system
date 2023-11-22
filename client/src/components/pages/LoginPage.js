@@ -19,38 +19,21 @@ const LoginPage = () => {
         password,
       });
 
-      // Assuming that the server response contains an object with the accessToken
-      // and the user information, including their role
-
-      // Inside your handleSubmit function after login is successful
-
+      const userRole = response.data.user.role;
+      localStorage.setItem("userRole", userRole); // Save role to localStorage
       console.log("Login Response:", response.data); // Log the response data to inspect it
-
       const { accessToken, user } = response.data;
 
-      // Debug: Log the role
       console.log("User role from server:", user.role);
-
-      // Assuming localStorage is used to store the role (consider a more secure storage method for actual role)
       localStorage.setItem("token", accessToken);
       localStorage.setItem("role", user.role);
-
-      // Check the user's role and navigate accordingly
-      if (user && user.role) {
-        switch (user.role) {
-          case "student":
-            navigate("/student/home");
-            break;
-          // case "lecturer":
-          //   navigate("/lecturer/home");
-          //   break;
-          // case "administrator": // Make sure this matches the role exactly as in the schema
-          //   navigate("/administrator/home");
-          //   break;
-          default:
-            setError("Your role is not recognized or you are not authorized.");
-            break;
-        }
+      // Navigate based on user role
+      if (userRole === "student") {
+        navigate("/home");
+      } else if (userRole === "lecturer") {
+        navigate("/lecturer/dashboard");
+      } else if (userRole === "administrator") {
+        navigate("/admin/dashboard");
       } else {
         // If there is no role present in the response
         setError("The login response did not contain the user role.");

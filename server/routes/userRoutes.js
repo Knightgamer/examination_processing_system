@@ -4,10 +4,12 @@ const {
   currentUser,
   loginUser,
   deleteUser,
+  getAllUsers,
 } = require("../controllers/userController");
 const validateToken = require("../middleware/validateTokenHandler");
 
 const router = express.Router();
+router.get("/", getAllUsers);
 
 router.post("/register", registerUser);
 

@@ -83,6 +83,15 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+// Other CRUD operations (as placeholders)
+const getAllUsers = asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find().select("-password"); // Excluding the password from the result
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 // @desc Delete a user
 // @route DELETE /users/:id
 // @access Private
@@ -106,10 +115,30 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 // @desc Get current user
-// @route GET /users/me
+// @route GET /users/current
 // @access Private
 const currentUser = asyncHandler(async (req, res) => {
-  res.json(req.user);
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  const user = await User.findById(decoded.user.id).select("-password");
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.json({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+  });
 });
 
-module.exports = { registerUser, loginUser, currentUser, deleteUser };
+module.exports = {
+  registerUser,
+  loginUser,
+  currentUser,
+  deleteUser,
+  getAllUsers,
+};
