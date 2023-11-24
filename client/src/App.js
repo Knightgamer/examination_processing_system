@@ -1,68 +1,81 @@
-import React, { useState, useEffect } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
+
 import LoginPage from "./components/pages/LoginPage";
 import AdminDashboard from "./components/pages/admin/HomePage";
 import StudentDashboard from "./components/pages/students/HomePage";
 import LecturerDashboard from "./components/pages/teachers/HomePage";
 
 function App() {
+  // const [userRole, setUserRole] = useState(null);
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Function to check if the user is authenticated (has a valid token)
-  const checkAuthentication = () => {
-    const token = localStorage.getItem("token");
-    return !!token; // Convert to boolean: true if token exists, false otherwise
-  };
 
   useEffect(() => {
-    setIsAuthenticated(checkAuthentication());
-
+    // Listen for changes in localStorage
     const handleStorageChange = () => {
       setUserRole(localStorage.getItem("userRole"));
-      setIsAuthenticated(checkAuthentication());
     };
 
     window.addEventListener("storage", handleStorageChange);
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setUserRole(null);
+      return;
+    }
+
+    axios
+      .get("http://localhost:5000/users/current", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        // Assuming the response contains the user's role
+        setUserRole(response.data.role);
+      })
+      .catch(() => {
+        localStorage.clear();
+        setUserRole(null);
+      });
+  }, []);
+
+  const renderDashboard = () => {
+    switch (userRole) {
+      case "student":
+        return <StudentDashboard />;
+      case "lecturer":
+        return <LecturerDashboard />;
+      case "administrator":
+        return <AdminDashboard />;
+      default:
+        return <Navigate to="/" />;
+    }
+  };
 
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
 
-        {/* Protected Routes for logged-in users */}
-        {isAuthenticated && userRole === "student" && (
-          <Route path="/home" element={<StudentDashboard />} />
-        )}
-        {isAuthenticated && userRole === "lecturer" && (
-          <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
-        )}
-        {isAuthenticated && userRole === "administrator" && (
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        )}
+        {/* Protected Routes */}
+        <Route path="/home" element={renderDashboard()} />
+        <Route path="/lecturer/dashboard" element={renderDashboard()} />
+        <Route path="/admin/dashboard" element={renderDashboard()} />
 
-        {/* Redirect to Login or Appropriate Dashboard based on Authentication and Role */}
-        <Route
-          path="*"
-          element={
-            isAuthenticated ? (
-              <Navigate
-                to={userRole === "administrator" ? "/admin/dashboard" : "/home"}
-              />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
+        {/* Catch-all Redirect */}
+        <Route path="*" element={renderDashboard()} />
       </Routes>
     </Router>
   );
