@@ -1,61 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Add the missing import
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Navigation = () => {
-  const navigate = useNavigate();
+const Navigation = ({ currentUser, userRole }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const userRole = localStorage.getItem("userRole");
-  const [currentUser, setCurrentUser] = useState(null); // State to store the current user's data
-
+  // Function to handle dropdown toggle
   const handleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-  // Function to extract initials
+
+  // Function to get user initials
   const getUserInitials = () => {
-    if (currentUser) {
-      const initials = `${currentUser.firstName.charAt(
-        0
-      )}${currentUser.lastName.charAt(0)}`;
-      return initials.toUpperCase();
-    }
-    return "";
+    return `${currentUser?.firstName.charAt(0)}${currentUser?.lastName.charAt(
+      0
+    )}`.toUpperCase();
   };
 
+  // Function to handle logout
   const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("token"); // Also remove the token
-    navigate("/");
+    // Logic to logout user
+    // This could be clearing the user data from local storage and redirecting to login page
+    localStorage.removeItem("userData");
+    navigate("/login");
   };
-
-  // Fetch current user profile
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const response = await axios.get(
-            "http://localhost:5000/users/current",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          setCurrentUser(response.data);
-        } else {
-          console.error("No token found");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-
-    fetchUserProfile();
-  }, [navigate]);
   return (
     <div className="flex h-screen">
       {/* Vertical Navigation Pane */}
@@ -94,7 +64,6 @@ const Navigation = () => {
         </ul>
       </nav>
 
-      {/* Horizontal Top Navigation Pane */}
       {/* Horizontal Top Navigation Pane */}
       <div className="flex-1 flex flex-col">
         <nav className="bg-white shadow-md p-4 flex justify-between items-center">

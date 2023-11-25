@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
   Navigate,
@@ -12,73 +11,73 @@ import AdminDashboard from "./components/pages/admin/HomePage";
 import StudentDashboard from "./components/pages/students/HomePage";
 import LecturerDashboard from "./components/pages/teachers/HomePage";
 
-function App() {
-  // const [userRole, setUserRole] = useState(null);
-  const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
+const App = () => {
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Listen for changes in localStorage
-    const handleStorageChange = () => {
-      setUserRole(localStorage.getItem("userRole"));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setUserRole(null);
-      return;
-    }
-
-    axios
-      .get("http://localhost:5000/users/current", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        // Assuming the response contains the user's role
-        setUserRole(response.data.role);
-      })
-      .catch(() => {
-        localStorage.clear();
-        setUserRole(null);
-      });
+    // Fetch the user's data from local storage/session storage or global state
+    // This is a placeholder, replace it with actual logic to retrieve user data
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    setUser(userData);
   }, []);
 
-  const renderDashboard = () => {
-    switch (userRole) {
-      case "student":
-        return <StudentDashboard />;
-      case "lecturer":
-        return <LecturerDashboard />;
-      case "administrator":
-        return <AdminDashboard />;
-      default:
-        return <Navigate to="/" />;
+  // Redirect based on user role
+  const PrivateRoute = ({ children, role }) => {
+    if (!user) {
+      // If no user data is available, redirect to login
+      return <Navigate to="/login" />;
+    } else if (user.role !== role) {
+      // Redirect user to the correct dashboard based on their role
+      switch (user.role) {
+        case "admin":
+          return <Navigate to="/admin" />;
+        case "student":
+          return <Navigate to="/student" />;
+        case "lecturer":
+          return <Navigate to="/lecturer" />;
+        default:
+          return <Navigate to="/login" />;
+      }
     }
+    return children; // If user has the correct role, render the requested route
   };
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-
-        {/* Protected Routes */}
-        <Route path="/home" element={renderDashboard()} />
-        <Route path="/lecturer/dashboard" element={renderDashboard()} />
-        <Route path="/admin/dashboard" element={renderDashboard()} />
-
-        {/* Catch-all Redirect */}
-        <Route path="*" element={renderDashboard()} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute role="admin">
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/student"
+          element={
+            <PrivateRoute role="student">
+              <StudentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/lecturer"
+          element={
+            <PrivateRoute role="lecturer">
+              <LecturerDashboard />
+            </PrivateRoute>
+          }
+        />
+        {/* Redirect from root to a specific dashboard or login based on user status */}
+        <Route
+          path="/"
+          element={<Navigate to={user ? `/${user.role}` : "/login"} />}
+        />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;
