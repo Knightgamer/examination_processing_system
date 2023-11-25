@@ -54,7 +54,7 @@ const userRegister = async (userDets, role, res) => {
 /**
  * @DESC To Login the user (STUDENT, LECTURER, ADMIN)
  */
-const userLogin = async (userCreds, role, res) => {
+const userLogin = async (userCreds, res) => {
   let { email, password } = userCreds;
 
   // First Check if the email is in the database
@@ -66,15 +66,6 @@ const userLogin = async (userCreds, role, res) => {
     });
   }
 
-  // We will check the role
-  if (user.role !== role) {
-    return res.status(403).json({
-      message: "Please make sure you are logging in from the right portal.",
-      success: false,
-    });
-  }
-
-  // That means user is existing and trying to sign in from the right portal
   // Now check for the password
   let isMatch = await bcrypt.compare(password, user.password);
   if (isMatch) {
@@ -83,14 +74,14 @@ const userLogin = async (userCreds, role, res) => {
       {
         user_id: user._id,
         role: user.role,
-        email: user.email, // Changed from username to email
+        email: user.email,
       },
       SECRET,
       { expiresIn: "7 days" }
     );
 
     let result = {
-      email: user.email, // Changed from username to email
+      email: user.email,
       role: user.role,
       token: `Bearer ${token}`,
       expiresIn: 168,

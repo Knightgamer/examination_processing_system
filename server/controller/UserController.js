@@ -20,15 +20,14 @@ class UserController {
   }
 
   static async login(req, res) {
-    const { role } = req.body;
-    const validRoles = ["student", "lecturer", "admin"];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({
-        message: "Invalid role provided.",
+    try {
+      await userLogin(req.body, res);
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal server error.",
         success: false,
       });
     }
-    await userLogin(req.body, role, res);
   }
 
   static async profile(req, res) {

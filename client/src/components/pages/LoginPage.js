@@ -1,58 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUserRole } from "../UserRoleContext"; // Import the context
 
-const LoginPage = () => {
+function LoginPage() {
+  const navigate = useNavigate();
+  const { updateUserRole } = useUserRole(); // Use the context hook
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is already logged in and redirect accordingly
-    const user = JSON.parse(localStorage.getItem("userData"));
-    if (user) {
-      redirectUser(user.role);
-    }
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
       const response = await axios.post("http://localhost:5000/users/login", {
         email,
         password,
       });
-      const { data } = response;
-      if (data.success) {
-        // Assuming the response has user data including the role
-        localStorage.setItem("userData", JSON.stringify(data.user));
-        redirectUser(data.user.role);
+
+      if (response.status === 200) {
+        const role = response.data.role;
+        updateUserRole(role); // Update the user role using the context
+        localStorage.setItem("userRole", role);
+        localStorage.setItem("userToken", response.data.token);
+        console.log(role, localStorage);
+
+        switch (role) {
+          case "admin":
+            navigate("/admin");
+            break;
+          case "student":
+            navigate("/student");
+            break;
+          case "lecturer":
+            navigate("/lecturer");
+            break;
+          default:
+            setError("Invalid user role");
+            break;
+        }
       } else {
-        // Handle unsuccessful login
-        setError("Invalid credentials or user not found.");
+        setError("Login failed. Please check your credentials.");
+        console.error(error);
       }
     } catch (error) {
-      setError("Login failed. Please try again.");
-    }
-  };
-
-  const redirectUser = (role) => {
-    switch (role) {
-      case "admin":
-        navigate("/admin");
-        break;
-      case "student":
-        navigate("/student");
-        break;
-      case "lecturer":
-        navigate("/lecturer");
-        break;
-      default:
-        navigate("/login");
-        break;
+      setError("An error occurred while logging in.");
+      console.error(error);
     }
   };
 
@@ -63,7 +57,9 @@ const LoginPage = () => {
           <h2 className="text-center text-3xl font-extrabold text-gray-900">
             Login
           </h2>
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm">{error}</div> // Display error message if there is an error
+          )}
           <div>
             <label htmlFor="email" className="sr-only">
               Email
@@ -71,7 +67,7 @@ const LoginPage = () => {
             <input
               id="email"
               name="email"
-              type="email" // Changed type to email
+              type="email"
               autoComplete="email"
               required
               className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
@@ -126,6 +122,6 @@ const LoginPage = () => {
       </div>
     </div>
   );
-};
+}
 
 export default LoginPage;
