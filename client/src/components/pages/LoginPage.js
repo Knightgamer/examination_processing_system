@@ -1,52 +1,48 @@
+//client\src\components\pages\LoginPage.js
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUserRole } from "../UserRoleContext"; // Import the context
+import { useUserRole } from "../UserRoleContext"; // Import the custom hook
 
-function LoginPage() {
-  const navigate = useNavigate();
-  const { updateUserRole } = useUserRole(); // Use the context hook
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { updateRole, updateAccessToken } = useUserRole(); // Use the context hook
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     try {
       const response = await axios.post("http://localhost:5000/users/login", {
         email,
         password,
       });
+      const { accessToken, userInfo } = response.data;
 
-      if (response.status === 200) {
-        const role = response.data.role;
-        updateUserRole(role); // Update the user role using the context
-        localStorage.setItem("userRole", role);
-        localStorage.setItem("userToken", response.data.token);
-        console.log(role, localStorage);
+      // Update the role and access token in the context and local storage
+      updateAccessToken(accessToken);
+      updateRole(userInfo.role);
+      console.log("Role updated to:", userInfo.role);
 
-        switch (role) {
-          case "admin":
-            navigate("/admin");
-            break;
-          case "student":
-            navigate("/student");
-            break;
-          case "lecturer":
-            navigate("/lecturer");
-            break;
-          default:
-            setError("Invalid user role");
-            break;
-        }
-      } else {
-        setError("Login failed. Please check your credentials.");
-        console.error(error);
+      // Redirect based on user role
+      switch (userInfo.role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "lecturer":
+          navigate("/lecturer");
+          break;
+        case "student":
+          navigate("/student");
+          break;
+        default:
+          navigate("/");
+          break;
       }
-    } catch (error) {
-      setError("An error occurred while logging in.");
-      console.error(error);
+    } catch (err) {
+      setError(err.response?.data.message || "An error occurred");
     }
   };
 
@@ -94,20 +90,17 @@ function LoginPage() {
           </div>
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <a
-                href="#"
+              <button
                 className="font-medium text-indigo-600 hover:text-indigo-500"
+                // Add any onClick event handler if needed
               >
                 Forgot your password?
-              </a>
+              </button>
             </div>
             <div className="text-sm">
-              <a
-                href="#"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
-              >
+              <button className="font-medium text-indigo-600 hover:text-indigo-500">
                 Sign up
-              </a>
+              </button>
             </div>
           </div>
           <div>
@@ -122,6 +115,6 @@ function LoginPage() {
       </div>
     </div>
   );
-}
+};
 
 export default LoginPage;

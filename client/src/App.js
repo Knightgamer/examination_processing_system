@@ -1,4 +1,3 @@
-// client\src\App.js
 import React from "react";
 import {
   Navigate,
@@ -8,37 +7,32 @@ import {
 } from "react-router-dom";
 import { useUserRole } from "./components/UserRoleContext";
 import LoginPage from "./components/pages/LoginPage";
-import NotFound from "./components/pages/NotFound"; // Import NotFound component
+import NotFound from "./components/pages/NotFound";
 import UnauthorizedAccess from "./components/pages/UnauthorizedAccess";
 import AdminDashboard from "./components/pages/admin/HomePage";
 import LecturerDashboard from "./components/pages/lecturer/HomePage";
 import StudentDashboard from "./components/pages/student/HomePage";
 
 const App = () => {
-  const { userRole } = useUserRole();
+  const { role: userRole } = useUserRole();
 
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        {userRole === "admin" ? (
+        {userRole === "admin" && (
           <Route path="/admin" element={<AdminDashboard />} />
-        ) : (
-          <Route path="/admin" element={<UnauthorizedAccess />} />
         )}
-        {userRole === "student" ? (
+        {userRole === "student" && (
           <Route path="/student" element={<StudentDashboard />} />
-        ) : (
-          <Route path="/student" element={<UnauthorizedAccess />} />
         )}
-        {userRole === "lecturer" ? (
+        {userRole === "lecturer" && (
           <Route path="/lecturer" element={<LecturerDashboard />} />
-        ) : (
-          <Route path="/lecturer" element={<UnauthorizedAccess />} />
         )}
-        <Route path="/*" element={<NotFound />} />{" "}
-        {/* Handle 404 Page Not Found */}
-        {/* Redirect to login if no route matches */}
+        <Route path="/admin" element={<UnauthorizedAccess />} />
+        <Route path="/student" element={<UnauthorizedAccess />} />
+        <Route path="/lecturer" element={<UnauthorizedAccess />} />
+        <Route path="/*" element={<NotFound />} />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
