@@ -34,6 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user.id,
       username: user.username,
       email: user.email,
+      name: user.name,
       role: user.role,
     });
   } else {
@@ -62,6 +63,7 @@ const loginUser = asyncHandler(async (req, res) => {
           username: user.username,
           email: user.email,
           id: user._id, // use _id for MongoDB's default ObjectId
+          name: user.name,
           role: user.role, // Include the user's role
           // Include any other relevant fields here
         },
@@ -78,6 +80,7 @@ const loginUser = asyncHandler(async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        name: user.name,
         role: user.role,
         // other fields as needed
       },
