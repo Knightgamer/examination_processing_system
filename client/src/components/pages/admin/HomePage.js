@@ -5,7 +5,6 @@ function HomePage() {
   return (
     <div>
       <Navigation />
-      admin page
     </div>
   );
 }

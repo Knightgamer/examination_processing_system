@@ -10,9 +10,9 @@ import LoginPage from "./components/pages/LoginPage";
 import NotFound from "./components/pages/NotFound";
 import UnauthorizedAccess from "./components/pages/UnauthorizedAccess";
 import AdminDashboard from "./components/pages/admin/HomePage";
+import StudentPage from "./components/pages/admin/StudentPage";
 import LecturerDashboard from "./components/pages/lecturer/HomePage";
 import StudentDashboard from "./components/pages/student/HomePage";
-
 const App = () => {
   const { role: userRole } = useUserRole();
 
@@ -21,7 +21,12 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         {userRole === "admin" && (
-          <Route path="/admin" element={<AdminDashboard />} />
+          <>
+            <Route path="/admin" element={<AdminDashboard />}>
+              <Route path="/admin/students" element={<StudentPage />} />
+            </Route>
+            /
+          </>
         )}
         {userRole === "student" && (
           <Route path="/student" element={<StudentDashboard />} />

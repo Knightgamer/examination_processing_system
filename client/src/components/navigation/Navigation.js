@@ -1,6 +1,12 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  FaChalkboardTeacher,
+  FaClipboard,
+  FaHome,
+  FaUsers,
+} from "react-icons/fa";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import UserRoleContext from "../UserRoleContext";
 
 const Navigation = () => {
@@ -55,39 +61,117 @@ const Navigation = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-auto">
       {/* Vertical Navigation Pane */}
-      <nav className="w-64 bg-gray-800 text-gray-200 p-4">
+      <nav className="w-64 bg-gray-700 text-white p-4">
+        <div className="pl-4 pb-7 flex justify-between items-center">
+          <h1 className="text-xl font-bold text-white-800">Shivam</h1>
+        </div>
         <ul>
+          {/* Student Links */}
           {role === "student" && (
-            <li className="mb-2">
-              <Link
-                to="/student/home"
-                className="text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Student Home
-              </Link>
-            </li>
+            <React.Fragment>
+              <li className="mb-2">
+                <Link
+                  to="/student/home"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaHome className="w-5 h-5 mr-2" />
+                  Student Home
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/student/page"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  {/* You can add more links for student here */}
+                </Link>
+              </li>
+            </React.Fragment>
           )}
+
+          {/* Lecturer Links */}
           {role === "lecturer" && (
-            <li className="mb-2">
-              <Link
-                to="/lecturer/home"
-                className="text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Lecturer Home
-              </Link>
-            </li>
+            <React.Fragment>
+              <li className="mb-2">
+                <Link
+                  to="/lecturer/home"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaChalkboardTeacher className="w-5 h-5 mr-2" />
+                  Lecturer Home
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/lecturer/page"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  {/* You can add more links for lecturer here */}
+                </Link>
+              </li>
+            </React.Fragment>
           )}
+
+          {/* Admin Links */}
           {role === "admin" && (
-            <li className="mb-2">
-              <Link
-                to="/admin/dashboard"
-                className="text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Admin Dashboard
-              </Link>
-            </li>
+            <React.Fragment>
+              <li className="mb-2">
+                <Link
+                  to="/admin"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaClipboard className="w-5 h-5 mr-2" />
+                  Admin Dashboard
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/admin/reports"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaClipboard className="w-5 h-5 mr-2" />
+                  Generate Reports
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/admin/courses"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaClipboard className="w-5 h-5 mr-2" />
+                  Manage Courses
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/admin/students"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaUsers className="w-5 h-5 mr-2" />
+                  Manage Students
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/admin/lecturers"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaUsers className="w-5 h-5 mr-2" />
+                  Manage Lecturers
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link
+                  to="/admin/edit-marks"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
+                >
+                  <FaClipboard className="w-5 h-5 mr-2" />
+                  Edit Marks
+                </Link>
+              </li>
+            </React.Fragment>
           )}
         </ul>
       </nav>
@@ -140,9 +224,7 @@ const Navigation = () => {
             )}
           </div>
         </nav>
-
-        {/* Main content area */}
-        <div className="flex-1 p-5">{/* Content goes here */}</div>
+        <div className="flex-1 p-5">{<Outlet />}</div>
       </div>
     </div>
   );
