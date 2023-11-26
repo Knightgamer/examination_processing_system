@@ -61,9 +61,9 @@ const Navigation = () => {
   };
 
   return (
-    <div className="flex h-auto">
+    <div className="flex h-screen overflow-y-auto">
       {/* Vertical Navigation Pane */}
-      <nav className="w-64 bg-gray-700 text-white p-4">
+      <nav className="w-64 h-auto overflow-y-auto bg-gray-700 text-white p-4">
         <div className="pl-4 pb-7 flex justify-between items-center">
           <h1 className="text-xl font-bold text-white-800">Shivam</h1>
         </div>

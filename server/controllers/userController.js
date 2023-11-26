@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
 //@desc Register a user
-//@route POST /api/users/register
+//@route POST  /users/register
 //@access public
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, name, role } = req.body;
@@ -44,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 //@desc Login user
-//@route POST /api/users/login
+//@route POST  /users/login
 //@access public
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -91,11 +91,60 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+//@desc Get all users with a specific role
+//@route GET /users/role/:role
+//@access private (assuming you want this route to be protected)
+const getUsersByRole = asyncHandler(async (req, res) => {
+  const { role } = req.params;
+
+  // Validate the role parameter, you can add more role validation logic if needed
+  if (!["student", "lecturer", "admin"].includes(role)) {
+    res.status(400);
+    throw new Error("Invalid role parameter");
+  }
+
+  // Fetch users by role
+  const users = await User.find({ role });
+
+  res.status(200).json(users);
+});
+
+//@desc Get all users
+//@route GET /users
+//@access private
+const getAllUsers = asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find().select("-password"); // Excluding the password from the result
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 //@desc Current user info
-//@route POST /api/users/current
+//@route POST /users/current
 //@access private
 const currentUser = asyncHandler(async (req, res) => {
   res.json(req.user);
 });
+const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-module.exports = { registerUser, loginUser, currentUser };
+    await user.deleteOne({ _id: user._id });
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+module.exports = {
+  registerUser,
+  loginUser,
+  currentUser,
+  getUsersByRole,
+  getAllUsers,
+  deleteUser,
+};

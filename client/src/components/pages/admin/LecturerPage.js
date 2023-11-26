@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { RiDeleteBin2Line } from "react-icons/ri"; // Import the delete icon
+import { RiDeleteBin2Line } from "react-icons/ri";
 
-const StudentPage = () => {
-  const [students, setStudents] = useState([]);
+const LecturerPage = () => {
+  const [lecturers, setLecturers] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,47 +18,52 @@ const StudentPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Add the role to the formData object
+    formData.role = "lecturer";
+
     try {
       const response = await axios.post(
         "http://localhost:5000/users/register",
         formData
       );
       console.log("User registered successfully:", response.data);
-      // Fetch the updated list of student users after registration
-      fetchStudentUsers();
+      // Fetch the updated list of lecturers after registration
+      fetchLecturers();
     } catch (error) {
       console.error("Error registering user:", error);
     }
   };
 
-  const fetchStudentUsers = async () => {
+  const fetchLecturers = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/users/role/student"
+        "http://localhost:5000/users/role/lecturer"
       );
-      setStudents(response.data);
+      setLecturers(response.data);
     } catch (error) {
-      console.error("Error fetching student users:", error);
+      console.error("Error fetching lecturers:", error);
     }
   };
+
   const handleDelete = async (userId) => {
     try {
       await axios.delete(`http://localhost:5000/users/${userId}`);
-      console.log("User deleted successfully");
-      // Fetch the updated list of student users after deletion
-      fetchStudentUsers();
+      // Fetch the updated list of lecturers after deletion
+      fetchLecturers();
     } catch (error) {
       console.error("Error deleting user:", error);
     }
   };
+
   useEffect(() => {
-    // Fetch the initial list of student users when the component mounts
-    fetchStudentUsers();
+    // Fetch the initial list of lecturers when the component mounts
+    fetchLecturers();
   }, []);
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">Student Registration</h1>
+      <h1 className="text-2xl font-semibold mb-4">Lecturer Registration</h1>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-4">
           <label htmlFor="name" className="block text-gray-700 font-semibold">
@@ -73,6 +78,7 @@ const StudentPage = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
             required
           />
+          {/* <input type="hidden" id="role" name="role" value="lecturer" /> */}
         </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700 font-semibold">
@@ -129,7 +135,8 @@ const StudentPage = () => {
           Register
         </button>
       </form>
-      <h1 className="text-2xl font-semibold mb-4">Student List</h1>
+
+      <h1 className="text-2xl font-semibold mb-4">Lecturer List</h1>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -148,16 +155,16 @@ const StudentPage = () => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {students.map((student) => (
-            <tr key={student._id}>
-              <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{student.email}</td>
+          {lecturers.map((lecturer) => (
+            <tr key={lecturer._id}>
+              <td className="px-6 py-4 whitespace-nowrap">{lecturer.name}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{lecturer.email}</td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {student.username}
+                {lecturer.username}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
-                  onClick={() => handleDelete(student._id)} // Pass the user's ID to the delete function
+                  onClick={() => handleDelete(lecturer._id)} // Pass the lecturer's ID to the delete function
                   className="text-red-600 hover:text-red-800 flex items-center"
                 >
                   <RiDeleteBin2Line className="mr-1" /> Delete
@@ -171,4 +178,4 @@ const StudentPage = () => {
   );
 };
 
-export default StudentPage;
+export default LecturerPage;
