@@ -96,7 +96,7 @@ const Navigation = () => {
       <div className="flex-1 flex flex-col">
         <nav className="bg-white shadow-md p-4 flex justify-between items-center">
           <Link to="/" className="text-xl font-bold text-gray-800">
-            dd{" "}
+            Knight
           </Link>
 
           {/* User Dropdown */}

@@ -30,6 +30,7 @@ export const UserRoleProvider = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem("userRole");
     localStorage.removeItem("accessToken");
+    localStorage.clear();
     setRole(null);
     setAccessToken(null);
   }, []);
