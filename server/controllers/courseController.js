@@ -5,6 +5,22 @@ const createCourse = async (req, res) => {
   try {
     const { courseCode, courseName, semester, academicYear, lecturer } =
       req.body;
+
+    // Check if a course with the same code, name, semester, and academic year already exists
+    const existingCourse = await Course.findOne({
+      courseCode,
+      courseName,
+      semester,
+      academicYear,
+    });
+
+    if (existingCourse) {
+      return res.status(400).json({
+        error:
+          "Course with the same code, name, semester, and academic year already exists.",
+      });
+    }
+
     const course = await Course.create({
       courseCode,
       courseName,
