@@ -59,17 +59,20 @@ exports.registerCourses = asyncHandler(async (req, res) => {
 exports.getRegistration = asyncHandler(async (req, res) => {
   const { studentId } = req.params;
 
-  const registration = await Registration.find({ student: studentId }).populate(
-    {
-      path: "courses",
-      select: "courseName courseCode semester academicYear",
-    }
-  );
+  const registrations = await Registration.find({
+    student: studentId,
+  }).populate({
+    path: "courses",
+    select: "courseName courseCode semester academicYear lecturer",
+    populate: {
+      path: "lecturer",
+      select: "name", // Adjust the fields based on your User model
+    },
+  });
 
-  if (!registration) {
-    res.status(404);
-    throw new Error("Registration not found");
+  if (registrations.length === 0) {
+    return res.status(404).json({ message: "Registration not found" });
   }
 
-  res.status(200).json(registration);
+  res.status(200).json(registrations);
 });

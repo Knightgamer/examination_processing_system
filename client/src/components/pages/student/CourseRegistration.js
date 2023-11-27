@@ -8,6 +8,7 @@ function CourseRegistration() {
   const [semesters, setSemesters] = useState([]);
   const [selectedSemester, setSelectedSemester] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [registeredCourses, setRegisteredCourses] = useState([]);
 
   // Fetch courses from backend when component mounts
   useEffect(() => {
@@ -24,6 +25,32 @@ function CourseRegistration() {
       })
       .catch((error) => console.error("Error fetching courses:", error));
   }, []);
+
+  // Fetch registered courses for the student
+  useEffect(() => {
+    const studentId = localStorage.getItem("userId"); // Adjust as per your implementation
+    if (studentId) {
+      axios
+        .get(`http://localhost:5000/student/${studentId}`) // Adjust with your actual endpoint
+        .then((response) => {
+          // Flatten the course data
+          const flattenedCourses = response.data.flatMap(
+            (registration) => registration.courses
+          );
+          setRegisteredCourses(flattenedCourses);
+        })
+        .catch((error) =>
+          console.error("Error fetching registered courses:", error)
+        );
+    }
+  }, []);
+
+  // Group flattened registered courses by semester
+  const coursesBySemester = registeredCourses.reduce((acc, course) => {
+    acc[course.semester] = acc[course.semester] || [];
+    acc[course.semester].push(course);
+    return acc;
+  }, {});
 
   // Function to handle course selection
   const handleCourseSelection = (courseId) => {
@@ -122,7 +149,8 @@ function CourseRegistration() {
                 className="mr-2"
               />
               <label htmlFor={course._id} className="text-gray-800">
-                {course.courseCode} - {course.courseName}
+                {course.courseCode} - {course.courseName} -{" "}
+                {course.lecturer.name}
               </label>
             </div>
           ))}
@@ -134,6 +162,37 @@ function CourseRegistration() {
             Register Courses
           </button>
         </form>
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Registered Courses
+          </h2>
+          {Object.keys(coursesBySemester).map((semester) => (
+            <div key={semester} className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                {semester}
+              </h3>
+              <table className="w-full text-left bg-white rounded-lg shadow">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2">Course Code</th>
+                    <th className="px-4 py-2">Course Name</th>
+                    <th className="px-4 py-2">Lecturer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {coursesBySemester[semester].map((course) => (
+                    <tr key={course._id} className="border-b">
+                      <td className="px-4 py-2">{course.courseCode}</td>
+                      <td className="px-4 py-2">{course.courseName}</td>
+                      <td className="px-4 py-2">{course.lecturer.name}</td>{" "}
+                      {/* Adjust as per your data structure */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

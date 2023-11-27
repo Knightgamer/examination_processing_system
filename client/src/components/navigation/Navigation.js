@@ -34,6 +34,10 @@ const Navigation = () => {
           // Check if the error status code indicates token expiration (e.g., 401 Unauthorized)
           if (error.response && error.response.status === 401) {
             // Token has expired, navigate to the login page
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("accessToken");
+            localStorage.clear();
             navigate("/login");
           }
         }
