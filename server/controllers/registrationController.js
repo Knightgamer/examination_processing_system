@@ -37,10 +37,10 @@ exports.registerCourses = asyncHandler(async (req, res) => {
   );
 
   // Check if adding new courses will exceed the limit
-  if (existingCourseCount + courses.length > 5) {
-    res.status(400);
-    throw new Error("Exceeds maximum course limit for the semester");
-  }
+  // if (existingCourseCount + courses.length > 5) {
+  //   res.status(400);
+  //   throw new Error("Exceeds maximum course limit for the semester");
+  // }
 
   // Count courses for the entire academic year
   const yearCourseCount = await countCourses(student, academicYear, null);

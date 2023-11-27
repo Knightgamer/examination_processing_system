@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-
 function CourseRegistration() {
   // State variables to store courses, selected courses, and loading status
   const [courses, setCourses] = useState([]);
@@ -162,7 +161,7 @@ function CourseRegistration() {
             Register Courses
           </button>
         </form>
-        <div className="mt-8">
+        <div className="printable mt-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Registered Courses
           </h2>
