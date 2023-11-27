@@ -30,13 +30,18 @@ const Navigation = () => {
           setUserData(response.data);
         } catch (error) {
           console.error("Error fetching user data", error);
-          // Optional: Redirect to login if unauthorized
+
+          // Check if the error status code indicates token expiration (e.g., 401 Unauthorized)
+          if (error.response && error.response.status === 401) {
+            // Token has expired, navigate to the login page
+            navigate("/login");
+          }
         }
       }
     };
 
     fetchUserData();
-  }, [accessToken]);
+  }, [accessToken, navigate]);
 
   // Function to get the initial of the name or the username
   const getUserInitial = (userData) => {
