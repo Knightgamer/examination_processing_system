@@ -14,14 +14,6 @@ const registrationSchema = mongoose.Schema(
         ref: "Course",
       },
     ],
-    semester: {
-      type: String,
-      required: true,
-    },
-    academicYear: {
-      type: String,
-      required: true,
-    },
   },
   { timestamps: true }
 );

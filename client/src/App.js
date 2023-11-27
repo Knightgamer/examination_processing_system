@@ -14,6 +14,7 @@ import AdminDashboard from "./components/pages/admin/HomePage";
 import LecturerPage from "./components/pages/admin/LecturerPage";
 import StudentPage from "./components/pages/admin/StudentPage";
 import LecturerDashboard from "./components/pages/lecturer/HomePage";
+import CourseRegistration from "./components/pages/student/CourseRegistration";
 import StudentDashboard from "./components/pages/student/HomePage";
 const App = () => {
   const { role: userRole } = useUserRole();
@@ -33,7 +34,12 @@ const App = () => {
           </>
         )}
         {userRole === "student" && (
-          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/student" element={<StudentDashboard />}>
+            <Route
+              path="/student/course-registration"
+              element={<CourseRegistration />}
+            />
+          </Route>
         )}
         {userRole === "lecturer" && (
           <Route path="/lecturer" element={<LecturerDashboard />} />

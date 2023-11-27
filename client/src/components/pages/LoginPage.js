@@ -21,9 +21,11 @@ const LoginPage = () => {
       });
       const { accessToken, userInfo } = response.data;
 
-      // Update the role and access token in the context and local storage
+      // Update the role, access token, and user ID in the context and local storage
       updateAccessToken(accessToken);
       updateRole(userInfo.role);
+      localStorage.setItem("userId", userInfo.id); // Storing user ID in local storage
+
       console.log("Role updated to:", userInfo.role);
 
       // Redirect based on user role

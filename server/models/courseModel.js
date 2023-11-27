@@ -16,6 +16,10 @@ const courseSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    academicYear: {
+      type: String,
+      required: true,
+    },
     lecturer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Reference to the Lecturer model (User with role "lecturer")

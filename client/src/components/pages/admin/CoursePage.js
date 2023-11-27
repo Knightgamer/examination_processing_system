@@ -10,6 +10,7 @@ function CoursePage() {
     courseName: "",
     lecturer: "",
     semester: "",
+    academicYear: "",
   });
   const [lecturers, setLecturers] = useState([]);
   const [lecturerMap, setLecturerMap] = useState({}); // Map lecturer IDs to names
@@ -156,6 +157,23 @@ function CoursePage() {
             required
           />
         </div>
+        <div className="mb-4">
+          <label
+            htmlFor="academicYear"
+            className="block text-gray-700 font-semibold"
+          >
+            Academic Year
+          </label>
+          <input
+            type="text"
+            id="academicYear"
+            name="academicYear"
+            value={formData.academicYear}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+            required
+          />
+        </div>
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring"
@@ -178,6 +196,9 @@ function CoursePage() {
               Semester
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Academic Year
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Lecturer
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -195,6 +216,9 @@ function CoursePage() {
                 {course.courseName}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">{course.semester}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {course.academicYear}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 {lecturerMap[course.lecturer]}
               </td>

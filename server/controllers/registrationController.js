@@ -1,14 +1,14 @@
-// controllers/registrationController.js
 const Registration = require("../models/registrationModel");
-const Course = require("../models/courseModel"); // Assuming you have a Course model
+const Course = require("../models/courseModel");
 const asyncHandler = require("express-async-handler");
 
-// Helper function to count courses in a given year and semester
+// Helper function to count courses in a given year and semester for a student
 const countCourses = async (studentId, academicYear, semester) => {
   const registrations = await Registration.find({
     student: studentId,
-    academicYear,
-    semester,
+  }).populate({
+    path: "courses",
+    match: { academicYear: academicYear, semester: semester },
   });
 
   return registrations.reduce((acc, reg) => acc + reg.courses.length, 0);
@@ -16,13 +16,18 @@ const countCourses = async (studentId, academicYear, semester) => {
 
 // Register courses for a student
 exports.registerCourses = asyncHandler(async (req, res) => {
-  const { student, courses, semester, academicYear } = req.body;
+  const { student, courses } = req.body;
 
-  // Check if courses array is valid
+  // Validate courses array
   if (!Array.isArray(courses) || courses.length === 0) {
     res.status(400);
     throw new Error("No courses provided for registration");
   }
+
+  // Fetch course details to determine the semester and academic year
+  const courseDetails = await Course.find({ _id: { $in: courses } });
+  const academicYear = courseDetails[0].academicYear; // Assuming all courses belong to the same academic year
+  const semester = courseDetails[0].semester; // Assuming all courses belong to the same semester
 
   // Count existing courses for the student in the given semester and academic year
   const existingCourseCount = await countCourses(
@@ -45,12 +50,7 @@ exports.registerCourses = asyncHandler(async (req, res) => {
   }
 
   // Create registration record
-  const registration = await Registration.create({
-    student,
-    courses,
-    semester,
-    academicYear,
-  });
+  const registration = await Registration.create({ student, courses });
 
   res.status(201).json(registration);
 });
@@ -60,8 +60,11 @@ exports.getRegistration = asyncHandler(async (req, res) => {
   const { studentId } = req.params;
 
   const registration = await Registration.find({ student: studentId }).populate(
-    "courses"
-  ); // Populate course details
+    {
+      path: "courses",
+      select: "courseName courseCode semester academicYear",
+    }
+  );
 
   if (!registration) {
     res.status(404);

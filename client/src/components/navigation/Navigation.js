@@ -82,10 +82,11 @@ const Navigation = () => {
               </li>
               <li className="mb-2">
                 <Link
-                  to="/student/page"
+                  to="/student/course-registration"
                   className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
                 >
-                  {/* You can add more links for student here */}
+                  <FaHome className="w-5 h-5 mr-2" />
+                  Course Registration
                 </Link>
               </li>
             </React.Fragment>

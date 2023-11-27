@@ -29,6 +29,7 @@ export const UserRoleProvider = ({ children }) => {
   // Function to clear role and token (e.g., on logout)
   const logout = useCallback(() => {
     localStorage.removeItem("userRole");
+    localStorage.removeItem("userId");
     localStorage.removeItem("accessToken");
     localStorage.clear();
     setRole(null);

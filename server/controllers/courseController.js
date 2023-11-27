@@ -3,11 +3,13 @@ const Course = require("../models/courseModel");
 // Create a new course
 const createCourse = async (req, res) => {
   try {
-    const { courseCode, courseName, semester, lecturer } = req.body;
+    const { courseCode, courseName, semester, academicYear, lecturer } =
+      req.body;
     const course = await Course.create({
       courseCode,
       courseName,
       semester,
+      academicYear,
       lecturer,
     });
     res.status(201).json(course);
@@ -45,7 +47,7 @@ const getCourseById = async (req, res) => {
 
 // Update a course by ID
 const updateCourseById = async (req, res) => {
-  const { id } = req.params; // Change "courseId" to "id"
+  const { id } = req.params;
   try {
     const updatedCourse = await Course.findByIdAndUpdate(id, req.body, {
       new: true,
