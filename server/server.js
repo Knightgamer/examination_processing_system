@@ -14,6 +14,8 @@ app.use(express.json());
 app.use("/contacts", require("./routes/contactRoutes"));
 app.use("/users", require("./routes/userRoutes"));
 app.use("/courses", require("./routes/courseRoutes"));
+app.use("/student", require("./routes/registrationRoutes"));
+app.use("/scores", require("./routes/scoreRoutes"));
 
 app.use(errorHandler);
 
