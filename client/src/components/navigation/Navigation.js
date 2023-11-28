@@ -115,10 +115,11 @@ const Navigation = () => {
               </li>
               <li className="mb-2">
                 <Link
-                  to="/lecturer/page"
+                  to="/lecturer/courses"
                   className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
                 >
-                  {/* You can add more links for lecturer here */}
+                  <FaChalkboardTeacher className="w-5 h-5 mr-2" />
+                  Courses
                 </Link>
               </li>
             </React.Fragment>

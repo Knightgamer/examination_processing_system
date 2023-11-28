@@ -14,6 +14,7 @@ import AdminDashboard from "./components/pages/admin/HomePage";
 import LecturerPage from "./components/pages/admin/LecturerPage";
 import StudentPage from "./components/pages/admin/StudentPage";
 import LecturerDashboard from "./components/pages/lecturer/HomePage";
+import LecturerCourses from "./components/pages/lecturer/LecturerCourses";
 import CourseRegistration from "./components/pages/student/CourseRegistration";
 import StudentDashboard from "./components/pages/student/HomePage";
 const App = () => {
@@ -42,7 +43,9 @@ const App = () => {
           </Route>
         )}
         {userRole === "lecturer" && (
-          <Route path="/lecturer" element={<LecturerDashboard />} />
+          <Route path="/lecturer" element={<LecturerDashboard />}>
+            <Route path="/lecturer/courses" element={<LecturerCourses />} />
+          </Route>
         )}
         <Route path="/admin" element={<UnauthorizedAccess />} />
         <Route path="/student" element={<UnauthorizedAccess />} />

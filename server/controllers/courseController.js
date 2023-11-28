@@ -1,4 +1,5 @@
 const Course = require("../models/courseModel");
+const asyncHandler = require("express-async-handler");
 
 // Create a new course
 const createCourse = async (req, res) => {
@@ -46,6 +47,30 @@ const getAllCourses = async (req, res) => {
     res.status(500).json({ error: "Could not fetch courses" });
   }
 };
+
+// Get courses by a specific lecturer
+const getCoursesByLecturer = asyncHandler(async (req, res) => {
+  const { lecturerId } = req.params;
+
+  try {
+    const courses = await Course.find({ lecturer: lecturerId }).populate(
+      "lecturer",
+      "name"
+    ); // Populate lecturer's name
+
+    if (!courses || courses.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No courses found for this lecturer" });
+    }
+
+    res.status(200).json(courses);
+  } catch (error) {
+    console.error("Error fetching courses by lecturer:", error);
+    res.status(500).json({ error: "Could not fetch courses" });
+    console.log(error);
+  }
+});
 
 // Get a course by ID
 const getCourseById = async (req, res) => {
@@ -100,4 +125,5 @@ module.exports = {
   getCourseById,
   updateCourseById,
   deleteCourseById,
+  getCoursesByLecturer,
 };
