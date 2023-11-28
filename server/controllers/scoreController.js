@@ -54,3 +54,27 @@ exports.getScores = asyncHandler(async (req, res) => {
 
   res.status(200).json(scoreRecord);
 });
+
+// Get all scores in the database
+exports.getAllScores = asyncHandler(async (req, res) => {
+  const scores = await Score.find()
+    .populate({
+      path: "student",
+      select: "name", // Add other student fields as needed
+    })
+    .populate({
+      path: "course",
+      select: "courseCode courseName academicYear semester _id", // Include _id for courseId
+      populate: {
+        path: "lecturer",
+        select: "name", // Add other lecturer fields as needed
+      },
+    })
+    // Add other fields to populate if needed
+    .populate("assignmentScores")
+    .populate("catScores")
+    .populate("examScore")
+    .populate("specialConsideration");
+
+  res.status(200).json(scores);
+});

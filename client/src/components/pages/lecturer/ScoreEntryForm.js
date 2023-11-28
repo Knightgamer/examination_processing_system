@@ -17,7 +17,9 @@ function ScoreEntryForm({ student, courseId, onClose }) {
   const [catScores, setCatScores] = useState([
     initialCatScore,
     initialCatScore,
-  ]); // Initialize CAT scores with the correct maxScore
+  ]);
+    
+    // Initialize CAT scores with the correct maxScore
   const [examScore, setExamScore] = useState({
     score: 0,
     maxScore: maxExamScore,

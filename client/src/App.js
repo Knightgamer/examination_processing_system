@@ -10,6 +10,7 @@ import LoginPage from "./components/pages/LoginPage";
 import NotFound from "./components/pages/NotFound";
 import UnauthorizedAccess from "./components/pages/UnauthorizedAccess";
 import CoursePage from "./components/pages/admin/CoursePage";
+import EditMarks from "./components/pages/admin/EditMarks";
 import AdminDashboard from "./components/pages/admin/HomePage";
 import LecturerPage from "./components/pages/admin/LecturerPage";
 import StudentPage from "./components/pages/admin/StudentPage";
@@ -30,6 +31,7 @@ const App = () => {
               <Route path="/admin/students" element={<StudentPage />} />
               <Route path="/admin/lecturers" element={<LecturerPage />} />
               <Route path="/admin/courses" element={<CoursePage />} />
+              <Route path="/admin/edit-marks" element={<EditMarks />} />
             </Route>
             /
           </>
