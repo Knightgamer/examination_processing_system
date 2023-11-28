@@ -29,18 +29,27 @@ exports.registerCourses = asyncHandler(async (req, res) => {
   const academicYear = courseDetails[0].academicYear; // Assuming all courses belong to the same academic year
   const semester = courseDetails[0].semester; // Assuming all courses belong to the same semester
 
-  // Count existing courses for the student in the given semester and academic year
-  const existingCourseCount = await countCourses(
+  // Check if the student has already registered for any of the selected courses in the same academic year and semester
+  const existingRegistrations = await Registration.findOne({
     student,
     academicYear,
-    semester
-  );
+    semester,
+  });
+  if (existingRegistrations) {
+    const alreadyRegisteredCourses = existingRegistrations.courses.map(
+      (course) => course.toString()
+    );
+    const isAlreadyRegistered = courses.some((courseId) =>
+      alreadyRegisteredCourses.includes(courseId)
+    );
 
-  // Check if adding new courses will exceed the limit
-  // if (existingCourseCount + courses.length > 5) {
-  //   res.status(400);
-  //   throw new Error("Exceeds maximum course limit for the semester");
-  // }
+    if (isAlreadyRegistered) {
+      return res.status(400).json({
+        message:
+          "You have already registered for one or more selected courses in this semester.",
+      });
+    }
+  }
 
   // Count courses for the entire academic year
   const yearCourseCount = await countCourses(student, academicYear, null);

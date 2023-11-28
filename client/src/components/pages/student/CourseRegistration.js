@@ -1,3 +1,12 @@
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 function CourseRegistration() {
@@ -63,41 +72,55 @@ function CourseRegistration() {
   };
 
   // Function to handle form submission
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Validation for minimum and maximum course selection
     if (selectedCourses.length < 5) {
       alert("You must select at least 5 courses.");
+      return;
+    } else if (selectedCourses.length > 7) {
+      alert("You have reached the maximum courses registration.");
       return;
     }
 
     // Retrieve student ID from local storage
-    const studentId = localStorage.getItem("userId"); // Adjust the key as per your implementation
-
+    const studentId = localStorage.getItem("userId");
     if (!studentId) {
       alert("No student ID found. Please log in.");
       return;
     }
 
-    console.log(
-      "Submitting courses:",
-      selectedCourses,
-      "for student:",
-      studentId
-    );
-
-    axios
-      .post("http://localhost:5000/student/register", {
+    try {
+      // Post the selected courses to the registration endpoint
+      await axios.post("http://localhost:5000/student/register", {
         student: studentId,
         courses: selectedCourses,
-      })
-      .then((response) => {
-        alert("Courses registered successfully");
-      })
-      .catch((error) => {
-        console.error("Error registering courses:", error);
-        alert("Failed to register courses. Please try again.");
       });
+
+      // Notify user of successful registration
+      alert("Courses registered successfully");
+
+      // Fetch the updated list of registered courses
+      const updatedCoursesResponse = await axios.get(
+        `http://localhost:5000/student/${studentId}`
+      );
+      const updatedFlattenedCourses = updatedCoursesResponse.data.flatMap(
+        (registration) => registration.courses
+      );
+
+      // Update the state with the new list of registered courses
+      setRegisteredCourses(updatedFlattenedCourses);
+
+      // Optionally, reset the selected courses
+      setSelectedCourses([]);
+    } catch (error) {
+      // Handle errors in registration process
+      console.error("Error registering courses:", error);
+      alert("Failed to register courses. Please try again.");
+    }
   };
+
   // Function to handle semester selection
   const handleSemesterChange = (e) => {
     setSelectedSemester(e.target.value);
@@ -161,7 +184,8 @@ function CourseRegistration() {
             Register Courses
           </button>
         </form>
-        <div className="printable mt-8">
+
+        <div className="mt-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Registered Courses
           </h2>
@@ -170,25 +194,26 @@ function CourseRegistration() {
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
                 {semester}
               </h3>
-              <table className="w-full text-left bg-white rounded-lg shadow">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-2">Course Code</th>
-                    <th className="px-4 py-2">Course Name</th>
-                    <th className="px-4 py-2">Lecturer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {coursesBySemester[semester].map((course) => (
-                    <tr key={course._id} className="border-b">
-                      <td className="px-4 py-2">{course.courseCode}</td>
-                      <td className="px-4 py-2">{course.courseName}</td>
-                      <td className="px-4 py-2">{course.lecturer.name}</td>{" "}
-                      {/* Adjust as per your data structure */}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Course Code</TableCell>
+                      <TableCell>Course Name</TableCell>
+                      <TableCell>Lecturer</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {coursesBySemester[semester].map((course) => (
+                      <TableRow key={course._id}>
+                        <TableCell>{course.courseCode}</TableCell>
+                        <TableCell>{course.courseName}</TableCell>
+                        <TableCell>{course.lecturer.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </div>
           ))}
         </div>
