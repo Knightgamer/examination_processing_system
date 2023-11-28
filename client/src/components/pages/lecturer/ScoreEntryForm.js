@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 
-function ScoreEntryForm({ student, courseId }) {
+function ScoreEntryForm({ student, courseId, onClose }) {
   // Updated maximum scores
   const maxAssignmentScore = 15;
   const maxCatScore = 20;
@@ -68,9 +68,11 @@ function ScoreEntryForm({ student, courseId }) {
 
       await axios.post("http://localhost:5000/scores", payload);
       alert("Scores updated successfully!");
+      onClose(student._id); // Pass the student ID back to indicate grading is complete
     } catch (error) {
       console.error("Error updating scores:", error);
       alert("Failed to update scores.");
+      onClose(); // Call onClose without arguments in case of error
     }
   };
 

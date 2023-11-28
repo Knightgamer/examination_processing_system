@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import ScoreEntryForm from "./ScoreEntryForm"; // Import the ScoreEntryForm component
 
 function LecturerCourses() {
-  const [courses, setCourses] = useState([]);
   const [coursesBySemester, setCoursesBySemester] = useState({});
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showScoreEntryForm, setShowScoreEntryForm] = useState(false);
+  const [gradedStudents, setGradedStudents] = useState({}); // Track graded students
 
   const lecturerId = localStorage.getItem("userId");
 
@@ -17,7 +17,6 @@ function LecturerCourses() {
     axios
       .get(`http://localhost:5000/courses/lecturer/${lecturerId}`)
       .then((response) => {
-        setCourses(response.data);
         organizeCoursesBySemester(response.data);
         setIsLoading(false);
       })
@@ -51,11 +50,19 @@ function LecturerCourses() {
   };
 
   const handleStudentSelect = (student) => {
-    setSelectedStudent(student);
-    setShowScoreEntryForm(true);
+    // Construct the key for checking if student has been graded
+    const gradedKey = `${student._id}_${selectedCourse._id}_${selectedCourse.semester}`;
+    if (!gradedStudents[gradedKey]) {
+      setSelectedStudent(student);
+      setShowScoreEntryForm(true);
+    }
   };
 
-  const handleScoreFormClose = () => {
+  const handleScoreFormClose = (gradedStudentId) => {
+    if (gradedStudentId) {
+      const gradedKey = `${gradedStudentId}_${selectedCourse._id}_${selectedCourse.semester}`;
+      setGradedStudents({ ...gradedStudents, [gradedKey]: true });
+    }
     setSelectedStudent(null);
     setShowScoreEntryForm(false);
   };
@@ -78,7 +85,8 @@ function LecturerCourses() {
                 onClick={() => handleCourseSelect(course)}
                 className="p-4 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
               >
-                {course.courseName}
+                {" "}
+                {course.courseCode} - {course.courseName}
               </button>
             ))}
           </div>
@@ -87,23 +95,29 @@ function LecturerCourses() {
 
       {selectedCourse && (
         <div className="mt-6 p-4 bg-gray-100 rounded-md">
-          <h2 className="text-lg font-semibold mb-2">
-            Students in {selectedCourse.courseName}
-          </h2>
+          {/* ... */}
           {students.length > 0 ? (
             <ul>
-              {students.map((student) => (
-                <li
-                  key={student._id}
-                  className="mb-1 cursor-pointer text-blue-500 hover:underline"
-                  onClick={() => handleStudentSelect(student)}
-                >
-                  {student.name} - {student.email}
-                </li>
-              ))}
+              {students.map((student) => {
+                const gradedKey = `${student._id}_${selectedCourse._id}_${selectedCourse.semester}`;
+                return (
+                  <li
+                    key={student._id}
+                    className={`mb-1 cursor-pointer ${
+                      gradedStudents[gradedKey]
+                        ? "text-green-500"
+                        : "text-blue-500 hover:underline"
+                    }`}
+                    onClick={() => handleStudentSelect(student)}
+                  >
+                    {student.name} - {student.email}
+                    {gradedStudents[gradedKey] && <span> ✔️</span>}
+                  </li>
+                );
+              })}
             </ul>
           ) : (
-            <p>No students registered for this course.</p> // Display message if no students
+            <p>No students registered for this course.</p>
           )}
         </div>
       )}
