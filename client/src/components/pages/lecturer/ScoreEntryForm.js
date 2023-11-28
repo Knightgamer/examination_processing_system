@@ -9,11 +9,15 @@ function ScoreEntryForm({ student, courseId }) {
 
   // Updated initial score structures
   const initialScore = { score: 0, maxScore: maxAssignmentScore };
+  const initialCatScore = { score: 0, maxScore: maxCatScore };
   const initialScores = [initialScore, initialScore];
 
   // State for different scores and considerations
   const [assignmentScores, setAssignmentScores] = useState(initialScores);
-  const [catScores, setCatScores] = useState(initialScores);
+  const [catScores, setCatScores] = useState([
+    initialCatScore,
+    initialCatScore,
+  ]); // Initialize CAT scores with the correct maxScore
   const [examScore, setExamScore] = useState({
     score: 0,
     maxScore: maxExamScore,
@@ -29,15 +33,23 @@ function ScoreEntryForm({ student, courseId }) {
   // Function to handle score change
   const handleScoreChange = (e, index, type) => {
     const { name, value } = e.target;
-    const maxScore = type === "assignment" ? maxAssignmentScore : maxCatScore;
-    const newScores = type.map((score, i) =>
-      i === index
-        ? { ...score, [name]: Math.min(Number(value), maxScore), maxScore }
-        : score
-    );
-    type === "assignment"
-      ? setAssignmentScores(newScores)
-      : setCatScores(newScores);
+    let newScores;
+
+    if (type === "assignment") {
+      newScores = [...assignmentScores];
+      newScores[index] = {
+        ...newScores[index],
+        [name]: Math.min(Number(value), maxAssignmentScore),
+      };
+      setAssignmentScores(newScores);
+    } else if (type === "cat") {
+      newScores = [...catScores];
+      newScores[index] = {
+        ...newScores[index],
+        [name]: Math.min(Number(value), maxCatScore),
+      };
+      setCatScores(newScores);
+    }
   };
 
   // Function to handle form submission
