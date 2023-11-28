@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-function EditGradeModal({ student, course, onSave, onClose }) {
+function EditGradeModal({ student, course, onClose, onSave }) {
   const [assignmentScores, setAssignmentScores] = useState([]);
   const [catScores, setCatScores] = useState([]);
   const [examScore, setExamScore] = useState(0);
@@ -23,32 +23,21 @@ function EditGradeModal({ student, course, onSave, onClose }) {
   // State to track whether the exam input should be disabled
   const [examInputDisabled, setExamInputDisabled] = useState(false);
 
-  // Inside EditGradeModal.js
+  // Load the student's current scores on component mount
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/scores/${student.id}/${course.id}`
-        );
-        const data = response.data;
-        setAssignmentScores(data.assignmentScores || []);
-        setCatScores(data.catScores || []);
-        setExamScore(data.examScore || 0);
-        setSpecialConsideration(
-          data.specialConsideration || {
-            isApplicable: false,
-            reason: "",
-          }
-        );
-        console.log("Course ID:", course.id); // Log to verify course ID
-      } catch (error) {
-        console.error("Error fetching scores:", error);
+    setAssignmentScores(student.assignmentScores || initialScores);
+    setCatScores(student.catScores || [initialCatScore, initialCatScore]);
+    setExamScore(student.examScore || { score: 0, maxScore: maxExamScore });
+    setSpecialConsideration(
+      student.specialConsideration || {
+        isApplicable: false,
+        reason: "",
       }
-    }
+    );
+    console.log("Student data loaded:", student);
+  }, [student]);
 
-    fetchData();
-  }, [student.id, course.id]);
-
+  // Function to handle score change
   const handleScoreChange = (e, index, type) => {
     const { name, value } = e.target;
     let newScores;
@@ -69,22 +58,57 @@ function EditGradeModal({ student, course, onSave, onClose }) {
       setCatScores(newScores);
     }
   };
+// Load the student's grades from the database on component mount
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/scores/${student.id}/${course.id}`
+      );
+      const data = response.data;
+      setAssignmentScores(data.assignmentScores || []);
+      setCatScores(data.catScores || []);
+      setExamScore(data.examScore || 0);
+      setSpecialConsideration(
+        data.specialConsideration || {
+          isApplicable: false,
+          reason: "",
+        }
+      );
+      console.log("Data fetched from the server:", data);
+    } catch (error) {
+      console.error("Error fetching scores:", error);
+    }
+  }
 
+  fetchData();
+}, [student.id, course.id]);
+
+    
+
+
+    
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const payload = {
-        student: student.id, // Ensure this is the student's ID
-        course: course.id, // Ensure this is the course's ID
+        student: student._id,
         assignmentScores,
         catScores,
         examScore,
         specialConsideration,
       };
 
-      await axios.put(`http://localhost:5000/scores`, payload); // Adjust the endpoint as needed
-      onSave({ ...student, ...payload });
+      await axios.put(`http://localhost:5000/scores/${student._id}`, payload);
+      onSave({
+        ...student,
+        assignmentScores,
+        catScores,
+        examScore,
+        specialConsideration,
+      });
       onClose();
     } catch (error) {
       console.error("Error updating scores:", error);
@@ -92,6 +116,7 @@ function EditGradeModal({ student, course, onSave, onClose }) {
     }
   };
 
+  // Function to handle special consideration checkbox change
   const handleSpecialConsiderationChange = (e) => {
     const { checked } = e.target;
 
@@ -157,9 +182,12 @@ function EditGradeModal({ student, course, onSave, onClose }) {
               <input
                 type="number"
                 name="score"
-                value={examScore}
+                value={examScore.score}
                 onChange={(e) =>
-                  setExamScore(Math.min(Number(e.target.value), maxExamScore))
+                  setExamScore({
+                    ...examScore,
+                    score: Math.min(Number(e.target.value), maxExamScore),
+                  })
                 }
                 placeholder="Exam Score"
                 className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
