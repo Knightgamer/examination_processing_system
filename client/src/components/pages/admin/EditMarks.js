@@ -65,8 +65,8 @@ function EditMarks() {
   };
 
   const handleEdit = (student, courseInfo) => {
-    console.log("Editing Student:", student);
-    console.log("Editing Course Info:", courseInfo);
+    //console.log("Editing Student:", student);
+    // console.log("Editing Course Info:", courseInfo);
 
     setEditingStudent(student);
     setIsModalOpen(true);
@@ -90,10 +90,24 @@ function EditMarks() {
   };
 
   const handleSave = (updatedStudent) => {
-    // Update the student's grades in your state and possibly in your backend
-    console.log("Updated student grades:", updatedStudent);
+    setData((prevData) => {
+      const newData = { ...prevData };
+      Object.entries(newData).forEach(([semester, courses]) => {
+        Object.entries(courses).forEach(([courseName, courseData]) => {
+          courseData.students = courseData.students.map((student) => {
+            if (student.id === updatedStudent.id) {
+              return { ...student, ...updatedStudent };
+            }
+            return student;
+          });
+        });
+      });
+      return newData;
+    });
+
     closeModal();
   };
+
   const formatScores = (scores) => {
     return scores
       .map((scoreObj, index) => <span key={index}>{scoreObj.score}</span>)

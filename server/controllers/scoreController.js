@@ -1,9 +1,11 @@
 // controllers/scoreController.js
 const Score = require("../models/scoreModel");
 const asyncHandler = require("express-async-handler");
+const Course = require("../models/courseModel"); // assuming you have a course model
+const Student = require("../models/userModel"); // assuming you have a student model
 
-// Add or update scores
-exports.addOrUpdateScores = asyncHandler(async (req, res) => {
+// Add new score
+exports.createScore = asyncHandler(async (req, res) => {
   const {
     student,
     course,
@@ -13,29 +15,50 @@ exports.addOrUpdateScores = asyncHandler(async (req, res) => {
     specialConsideration,
   } = req.body;
 
-  // Check if the score record already exists
-  let scoreRecord = await Score.findOne({ student, course });
-
-  if (scoreRecord) {
-    // Update existing score record
-    scoreRecord.assignmentScores = assignmentScores;
-    scoreRecord.catScores = catScores;
-    scoreRecord.examScore = examScore;
-    scoreRecord.specialConsideration = specialConsideration;
-    await scoreRecord.save();
-  } else {
-    // Create a new score record
-    scoreRecord = await Score.create({
-      student,
-      course,
-      assignmentScores,
-      catScores,
-      examScore,
-      specialConsideration,
-    });
+  const studentExists = await Student.findById(student);
+  const courseExists = await Course.findById(course);
+  if (!studentExists || !courseExists) {
+    res.status(404);
+    throw new Error("Student or Course not found");
   }
 
+  const scoreRecord = await Score.create({
+    student,
+    course,
+    assignmentScores,
+    catScores,
+    examScore,
+    specialConsideration,
+  });
+
   res.status(201).json(scoreRecord);
+});
+
+// Update existing score
+exports.updateScore = asyncHandler(async (req, res) => {
+  const {
+    student,
+    course,
+    assignmentScores,
+    catScores,
+    examScore,
+    specialConsideration,
+  } = req.body;
+
+  const scoreRecord = await Score.findOne({ student, course });
+
+  if (!scoreRecord) {
+    res.status(404);
+    throw new Error("Score record not found");
+  }
+
+  scoreRecord.assignmentScores = assignmentScores;
+  scoreRecord.catScores = catScores;
+  scoreRecord.examScore = examScore;
+  scoreRecord.specialConsideration = specialConsideration;
+  await scoreRecord.save();
+
+  res.status(200).json(scoreRecord);
 });
 
 // Get scores for a student in a course
