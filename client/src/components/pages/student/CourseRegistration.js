@@ -34,23 +34,31 @@ function CourseRegistration() {
       .catch((error) => console.error("Error fetching courses:", error));
   }, []);
 
-  // Fetch registered courses for the student
-  useEffect(() => {
-    const studentId = localStorage.getItem("userId"); // Adjust as per your implementation
+  // Function to fetch registered courses
+  const fetchRegisteredCourses = () => {
+    const studentId = localStorage.getItem("userId");
     if (studentId) {
       axios
-        .get(`http://localhost:5000/student/${studentId}`) // Adjust with your actual endpoint
+        .get(`http://localhost:5000/student/${studentId}`) // Adjust the endpoint as per your setup
         .then((response) => {
-          // Flatten the course data
-          const flattenedCourses = response.data.flatMap(
-            (registration) => registration.courses
+          // Ensure detailed courses include lecturer data
+          const detailedCourses = response.data.flatMap((reg) =>
+            reg.courses.map((courseReg) => ({
+              ...courseReg.course,
+              semester: courseReg.semester,
+            }))
           );
-          setRegisteredCourses(flattenedCourses);
+          setRegisteredCourses(detailedCourses);
         })
         .catch((error) =>
           console.error("Error fetching registered courses:", error)
         );
     }
+  };
+
+  // Fetch registered courses for the student when component mounts
+  useEffect(() => {
+    fetchRegisteredCourses();
   }, []);
 
   // Group flattened registered courses by semester
@@ -92,15 +100,24 @@ function CourseRegistration() {
     }
 
     try {
-      // Post the selected courses to the registration endpoint
+      // Prepare the courses data for submission
+      const coursesForSubmission = selectedCourses.map((courseId) => {
+        return {
+          course: courseId,
+          semester: selectedSemester,
+        };
+      });
+
+      // Post the selected courses with semester information to the registration endpoint
       await axios.post("http://localhost:5000/student/register", {
         student: studentId,
-        courses: selectedCourses,
+        courses: coursesForSubmission,
       });
 
       // Notify user of successful registration
       alert("Courses registered successfully");
-
+      // Fetch updated courses after successful registration
+      fetchRegisteredCourses();
       // Fetch the updated list of registered courses
       const updatedCoursesResponse = await axios.get(
         `http://localhost:5000/student/${studentId}`
@@ -176,6 +193,7 @@ function CourseRegistration() {
               </label>
             </div>
           ))}
+          <input type="hidden" name="semester" value={selectedSemester} />
           <button
             type="submit"
             disabled={!selectedSemester}
@@ -189,33 +207,41 @@ function CourseRegistration() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Registered Courses
           </h2>
-          {Object.keys(coursesBySemester).map((semester) => (
-            <div key={semester} className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                {semester}
-              </h3>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Course Code</TableCell>
-                      <TableCell>Course Name</TableCell>
-                      <TableCell>Lecturer</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {coursesBySemester[semester].map((course) => (
-                      <TableRow key={course._id}>
-                        <TableCell>{course.courseCode}</TableCell>
-                        <TableCell>{course.courseName}</TableCell>
-                        <TableCell>{course.lecturer.name}</TableCell>
+          {Object.keys(coursesBySemester).length > 0 ? (
+            Object.keys(coursesBySemester).map((semester) => (
+              <div key={semester} className="mb-6">
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  {semester}
+                </h3>
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Course Code</TableCell>
+                        <TableCell>Course Name</TableCell>
+                        <TableCell>Lecturer</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          ))}
+                    </TableHead>
+                    <TableBody>
+                      {coursesBySemester[semester].map((course, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{course.courseCode}</TableCell>
+                          <TableCell>{course.courseName}</TableCell>
+                          <TableCell>
+                            {course.lecturer
+                              ? course.lecturer.name
+                              : "Not Assigned"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            ))
+          ) : (
+            <p>No registered courses to display.</p>
+          )}
         </div>
       </div>
     </div>

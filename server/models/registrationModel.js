@@ -10,12 +10,20 @@ const registrationSchema = mongoose.Schema(
     },
     courses: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        course: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Course",
+          required: true,
+        },
+        semester: {
+          type: String,
+          required: true,
+        },
       },
     ],
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model("Registration", registrationSchema);
