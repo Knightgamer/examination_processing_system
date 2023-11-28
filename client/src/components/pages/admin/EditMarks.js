@@ -8,7 +8,7 @@ function EditMarks() {
   const [data, setData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
-  const [editingCourse, setEditingCourse] = useState(null); // Add state for editing course
+  const [editingCourse, setEditingCourse] = useState(null);
 
   useEffect(() => {
     axios
@@ -33,7 +33,6 @@ function EditMarks() {
         specialConsideration,
       } = grade;
       const semester = course.semester || "Unknown Semester";
-      const courseCode = course.courseCode || "Unknown Course Code";
       const courseName = course.courseName || "Unknown Course";
       const lecturerName = course.lecturer
         ? course.lecturer.name
@@ -65,28 +64,15 @@ function EditMarks() {
   };
 
   const handleEdit = (student, courseInfo) => {
-    //console.log("Editing Student:", student);
-    // console.log("Editing Course Info:", courseInfo);
-
     setEditingStudent(student);
     setIsModalOpen(true);
-    setEditingCourse(courseInfo); // Assuming courseCode is unique and used as ID
-  };
-
-  const getCourseInfo = (student) => {
-    // Extract the course information from the organized data
-    const { semester, courseName } = student; // Adjust this based on your data structure
-    return {
-      semester,
-      courseName,
-      // Add any other course-related information you need
-    };
+    setEditingCourse(courseInfo);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingStudent(null);
-    setEditingCourse(null); // Clear the editing course
+    setEditingCourse(null);
   };
 
   const handleSave = (updatedStudent) => {
@@ -109,20 +95,25 @@ function EditMarks() {
   };
 
   const formatScores = (scores) => {
-    return scores
-      .map((scoreObj, index) => <span key={index}>{scoreObj.score}</span>)
-      .reduce((prev, curr) => [prev, ", ", curr]);
+    return scores.map((scoreObj, index) => (
+      <span key={index}>
+        {index > 0 && ", "} {scoreObj.score} / {scoreObj.maxScore}
+      </span>
+    ));
   };
 
   return (
-    <div>
+    <div className="container mx-auto mt-8 p-4">
       <h1 className="text-2xl font-bold mb-4">Student Grades</h1>
       {Object.entries(data).map(([semester, courses]) => (
         <div key={semester} className="mb-8">
           <h2 className="text-xl font-semibold mb-2">Semester: {semester}</h2>
           {Object.entries(courses).map(
             ([courseName, { lecturer, students }]) => (
-              <div key={courseName} className="mb-4">
+              <div
+                key={courseName}
+                className="mb-4 bg-white p-4 rounded shadow"
+              >
                 <h3 className="text-lg font-semibold">
                   Course: {courseName} - Lecturer: {lecturer}
                 </h3>
@@ -130,26 +121,32 @@ function EditMarks() {
                   {students.map((student) => (
                     <li
                       key={student.id}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between border-b py-2"
                     >
                       <span className="mr-2">
                         <strong>{student.name}</strong>:
                         <div>
-                          Assignment Scores:{" "}
-                          {student.assignmentScores
-                            ? formatScores(student.assignmentScores)
-                            : "N/A"}
-                          CAT Scores:{" "}
-                          {student.catScores
-                            ? formatScores(student.catScores)
-                            : "N/A"}
-                          Exam Score:{" "}
-                          {student.examScore ? student.examScore.score : "N/A"}
-                          Special Consideration:{" "}
-                          {student.specialConsideration &&
-                          student.specialConsideration.isApplicable
-                            ? "Yes"
-                            : "No"}
+                          <p>
+                            Assignment Scores:{" "}
+                            {formatScores(student.assignmentScores) || "N/A"}
+                          </p>
+                          <p>
+                            CAT Scores:{" "}
+                            {formatScores(student.catScores) || "N/A"}
+                          </p>
+                          <p>
+                            Exam Score:{" "}
+                            {student.examScore
+                              ? student.examScore.score
+                              : "N/A"}
+                          </p>
+                          <p>
+                            Special Consideration:{" "}
+                            {student.specialConsideration &&
+                            student.specialConsideration.isApplicable
+                              ? "Yes"
+                              : "No"}
+                          </p>
                         </div>
                       </span>
                       <button

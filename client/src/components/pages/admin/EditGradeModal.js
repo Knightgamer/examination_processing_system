@@ -1,34 +1,65 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+const maxAssignmentScore = 15;
+const maxCatScore = 20;
+const maxExamScore = 30;
 
 function EditGradeModal({ student, course, onClose, onSave }) {
-  // State for each score
-  const [assignmentScores, setAssignmentScores] = useState(
-    student.assignmentScores || []
-  );
-  const [catScores, setCatScores] = useState(student.catScores || []);
-  const [examScore, setExamScore] = useState(
-    student.examScore ? student.examScore.score : 0
-  );
-  const [specialConsideration, setSpecialConsideration] = useState(
-    student.specialConsideration || { isApplicable: false, reason: "" }
-  );
+  const [assignmentScores, setAssignmentScores] = useState([]);
+  const [catScores, setCatScores] = useState([]);
+  const [examScore, setExamScore] = useState(0);
+  const [specialConsideration, setSpecialConsideration] = useState({
+    isApplicable: false,
+    reason: "",
+  });
 
-  // Handle change in assignment scores
+  useEffect(() => {
+    setAssignmentScores(student.assignmentScores || []);
+    setCatScores(student.catScores || []);
+    setExamScore(student.examScore ? student.examScore.score : 0);
+    setSpecialConsideration(
+      student.specialConsideration || {
+        isApplicable: false,
+        reason: "",
+      }
+    );
+  }, [student]);
+
   const handleAssignmentScoreChange = (index, value) => {
+    const limitedValue = Math.min(value, maxAssignmentScore);
     const updatedScores = [...assignmentScores];
-    updatedScores[index] = { ...updatedScores[index], score: value };
+    updatedScores[index] = { ...updatedScores[index], score: limitedValue };
     setAssignmentScores(updatedScores);
   };
 
-  // Handle change in CAT scores
   const handleCatScoreChange = (index, value) => {
+    const limitedValue = Math.min(value, maxCatScore);
     const updatedScores = [...catScores];
-    updatedScores[index] = { ...updatedScores[index], score: value };
+    updatedScores[index] = { ...updatedScores[index], score: limitedValue };
     setCatScores(updatedScores);
   };
 
-  // Function to handle form submission
+  const handleExamScoreChange = (value) => {
+    const limitedValue = Math.min(value, maxExamScore);
+    setExamScore(limitedValue);
+
+    // Disable special consideration if there is a value in exam score
+    setSpecialConsideration({
+      isApplicable: false,
+      reason: "",
+    });
+  };
+
+  const handleSpecialConsiderationChange = () => {
+    // Disable exam score if special consideration is checked
+    setExamScore(0);
+    setSpecialConsideration({
+      ...specialConsideration,
+      isApplicable: !specialConsideration.isApplicable,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -49,6 +80,8 @@ function EditGradeModal({ student, course, onClose, onSave }) {
       if (response.status === 200) {
         onSave({ ...student, ...payload });
         onClose();
+        // Reload the page after successful update
+        window.location.reload();
       } else {
         alert("Failed to update scores: " + response.statusText);
       }
@@ -56,7 +89,6 @@ function EditGradeModal({ student, course, onClose, onSave }) {
       alert("Failed to update scores: " + error.message);
     }
   };
-
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
@@ -70,7 +102,7 @@ function EditGradeModal({ student, course, onClose, onSave }) {
             {/* Assignment Scores */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Assignment Scores
+                Assignment Scores (Max: {maxAssignmentScore})
               </label>
               {assignmentScores.map((score, index) => (
                 <input
@@ -89,7 +121,7 @@ function EditGradeModal({ student, course, onClose, onSave }) {
             {/* CAT Scores */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                CAT Scores
+                CAT Scores (Max: {maxCatScore})
               </label>
               {catScores.map((score, index) => (
                 <input
@@ -108,14 +140,17 @@ function EditGradeModal({ student, course, onClose, onSave }) {
             {/* Exam Score */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Exam Score
+                Exam Score (Max: {maxExamScore})
               </label>
               <input
                 type="number"
                 value={examScore || ""}
-                onChange={(e) => setExamScore(Number(e.target.value))}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                onChange={(e) => handleExamScoreChange(Number(e.target.value))}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                  specialConsideration.isApplicable ? "bg-gray-200" : ""
+                }`}
                 placeholder="Exam Score"
+                disabled={specialConsideration.isApplicable}
               />
             </div>
 
@@ -128,12 +163,7 @@ function EditGradeModal({ student, course, onClose, onSave }) {
                 <input
                   type="checkbox"
                   checked={specialConsideration.isApplicable || false}
-                  onChange={() =>
-                    setSpecialConsideration({
-                      ...specialConsideration,
-                      isApplicable: !specialConsideration.isApplicable,
-                    })
-                  }
+                  onChange={handleSpecialConsiderationChange}
                   className="mr-2 leading-tight"
                 />
                 <span className="text-gray-700 text-sm">
