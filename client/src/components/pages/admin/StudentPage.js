@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { RiDeleteBin2Line } from "react-icons/ri"; // Import the delete icon
+import { RiDeleteBin2Line } from "react-icons/ri";
 
 const StudentPage = () => {
   const [students, setStudents] = useState([]);
@@ -10,6 +10,7 @@ const StudentPage = () => {
     username: "",
     password: "",
   });
+  const [registrationStatus, setRegistrationStatus] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,16 +19,34 @@ const StudentPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if all fields are filled
+    const isFormValid = Object.values(formData).every((value) => value !== "");
+
+    if (!isFormValid) {
+      setRegistrationStatus("Please fill in all fields.");
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:5000/users/register",
         formData
       );
       console.log("User registered successfully:", response.data);
+      setRegistrationStatus("Student added successfully");
+      // Clear the form data
+      setFormData({
+        name: "",
+        email: "",
+        username: "",
+        password: "",
+      });
       // Fetch the updated list of student users after registration
       fetchStudentUsers();
     } catch (error) {
       console.error("Error registering user:", error);
+      setRegistrationStatus("Error registering user. Please try again.");
     }
   };
 
@@ -41,6 +60,7 @@ const StudentPage = () => {
       console.error("Error fetching student users:", error);
     }
   };
+
   const handleDelete = async (userId) => {
     try {
       await axios.delete(`http://localhost:5000/users/${userId}`);
@@ -51,6 +71,7 @@ const StudentPage = () => {
       console.error("Error deleting user:", error);
     }
   };
+
   useEffect(() => {
     // Fetch the initial list of student users when the component mounts
     fetchStudentUsers();
@@ -59,6 +80,13 @@ const StudentPage = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Student Registration</h1>
+
+      {registrationStatus && (
+        <div className={`text-${registrationStatus === 'Registration Successful' ? 'green' : 'red'}-500 mb-4`}>
+          {registrationStatus}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-4">
           <label htmlFor="name" className="block text-gray-700 font-semibold">
@@ -129,6 +157,7 @@ const StudentPage = () => {
           Register
         </button>
       </form>
+
       <h1 className="text-2xl font-semibold mb-4">Student List</h1>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">

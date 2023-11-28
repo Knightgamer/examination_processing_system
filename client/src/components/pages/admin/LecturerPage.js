@@ -10,6 +10,7 @@ const LecturerPage = () => {
     username: "",
     password: "",
   });
+  const [registrationStatus, setRegistrationStatus] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,6 +19,14 @@ const LecturerPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if all fields are filled
+    const isFormValid = Object.values(formData).every((value) => value !== "");
+
+    if (!isFormValid) {
+      setRegistrationStatus("Please fill in all fields.");
+      return;
+    }
 
     // Add the role to the formData object
     formData.role = "lecturer";
@@ -28,10 +37,19 @@ const LecturerPage = () => {
         formData
       );
       console.log("User registered successfully:", response.data);
+      setRegistrationStatus("Lecturer added successfully");
+      // Clear the form data
+      setFormData({
+        name: "",
+        email: "",
+        username: "",
+        password: "",
+      });
       // Fetch the updated list of lecturers after registration
       fetchLecturers();
     } catch (error) {
       console.error("Error registering user:", error);
+      setRegistrationStatus("Error registering user. Please try again.");
     }
   };
 
@@ -64,6 +82,13 @@ const LecturerPage = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Lecturer Registration</h1>
+
+      {registrationStatus && (
+        <div className={`text-${registrationStatus === 'Registration Successful' ? 'green' : 'red'}-500 mb-4`}>
+          {registrationStatus}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-4">
           <label htmlFor="name" className="block text-gray-700 font-semibold">
@@ -78,7 +103,6 @@ const LecturerPage = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
             required
           />
-          {/* <input type="hidden" id="role" name="role" value="lecturer" /> */}
         </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700 font-semibold">

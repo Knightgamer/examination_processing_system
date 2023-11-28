@@ -14,6 +14,7 @@ function CoursePage() {
   });
   const [lecturers, setLecturers] = useState([]);
   const [lecturerMap, setLecturerMap] = useState({}); // Map lecturer IDs to names
+  const [courseAddStatus, setCourseAddStatus] = useState(null);
 
   // Function to handle form input changes
   const handleChange = (e) => {
@@ -24,13 +25,32 @@ function CoursePage() {
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if all fields are filled
+    const isFormValid = Object.values(formData).every((value) => value !== "");
+
+    if (!isFormValid) {
+      setCourseAddStatus("Please fill in all fields.");
+      return;
+    }
+
     try {
       // Send a POST request to add a new course
       await axios.post("http://localhost:5000/courses", formData);
+      setCourseAddStatus("Course Added Successfully");
+      // Clear the form data
+      setFormData({
+        courseCode: "",
+        courseName: "",
+        lecturer: "",
+        semester: "",
+        academicYear: "",
+      });
       // Refresh the course list
       fetchCourses();
     } catch (error) {
       console.error("Error adding course:", error);
+      setCourseAddStatus("Error adding course. Please try again.");
     }
   };
 
@@ -60,6 +80,7 @@ function CoursePage() {
       console.error("Error fetching lecturers:", error);
     }
   };
+
   const handleDelete = async (coursesId) => {
     try {
       await axios.delete(`http://localhost:5000/courses/${coursesId}`);
@@ -67,7 +88,7 @@ function CoursePage() {
       fetchLecturers();
       fetchCourses();
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error deleting course:", error);
     }
   };
 
@@ -80,6 +101,13 @@ function CoursePage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Course Management</h1>
+
+      {courseAddStatus && (
+        <div className={`text-${courseAddStatus === 'Course Added Successfully' ? 'green' : 'red'}-500 mb-4`}>
+          {courseAddStatus}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-4">
           <label
