@@ -17,6 +17,7 @@ function CourseRegistration() {
   const [selectedSemester, setSelectedSemester] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [registeredCourses, setRegisteredCourses] = useState([]);
+  const [triggerFetch, setTriggerFetch] = useState(false); // New state to trigger refetch
 
   // Fetch courses from backend when component mounts
   useEffect(() => {
@@ -34,14 +35,13 @@ function CourseRegistration() {
       .catch((error) => console.error("Error fetching courses:", error));
   }, []);
 
-  // Function to fetch registered courses
-  const fetchRegisteredCourses = () => {
+  // Fetch registered courses for the student
+  useEffect(() => {
     const studentId = localStorage.getItem("userId");
     if (studentId) {
       axios
         .get(`http://localhost:5000/student/${studentId}`) // Adjust the endpoint as per your setup
         .then((response) => {
-          // Ensure detailed courses include lecturer data
           const detailedCourses = response.data.flatMap((reg) =>
             reg.courses.map((courseReg) => ({
               ...courseReg.course,
@@ -54,12 +54,7 @@ function CourseRegistration() {
           console.error("Error fetching registered courses:", error)
         );
     }
-  };
-
-  // Fetch registered courses for the student when component mounts
-  useEffect(() => {
-    fetchRegisteredCourses();
-  }, []);
+  }, [triggerFetch]); // Refetch when triggerFetch changes
 
   // Group flattened registered courses by semester
   const coursesBySemester = registeredCourses.reduce((acc, course) => {
@@ -116,8 +111,8 @@ function CourseRegistration() {
 
       // Notify user of successful registration
       alert("Courses registered successfully");
-      // Fetch updated courses after successful registration
-      fetchRegisteredCourses();
+      // Set trigger to refetch registered courses
+      setTriggerFetch(!triggerFetch);
       // Fetch the updated list of registered courses
       const updatedCoursesResponse = await axios.get(
         `http://localhost:5000/student/${studentId}`
