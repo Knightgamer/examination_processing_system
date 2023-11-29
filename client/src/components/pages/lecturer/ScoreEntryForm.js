@@ -2,6 +2,12 @@ import axios from "axios";
 import React, { useState } from "react";
 
 function ScoreEntryForm({ student, courseId, onClose }) {
+  // State to track whether the Special Consideration checkbox is enabled
+  const [specialConsiderationEnabled] = useState(true);
+
+  // State to track whether the Exam Score field is enabled and its value
+  const [examScoreEnabled, setExamScoreEnabled] = useState(true);
+
   // Updated maximum scores
   const maxAssignmentScore = 15;
   const maxCatScore = 20;
@@ -18,8 +24,8 @@ function ScoreEntryForm({ student, courseId, onClose }) {
     initialCatScore,
     initialCatScore,
   ]);
-    
-    // Initialize CAT scores with the correct maxScore
+
+  // Initialize CAT scores with the correct maxScore
   const [examScore, setExamScore] = useState({
     score: 0,
     maxScore: maxExamScore,
@@ -28,9 +34,6 @@ function ScoreEntryForm({ student, courseId, onClose }) {
     isApplicable: false,
     reason: "",
   });
-
-  // State to track whether the exam input should be disabled
-  const [examInputDisabled, setExamInputDisabled] = useState(false);
 
   // Function to handle score change
   const handleScoreChange = (e, index, type) => {
@@ -78,14 +81,17 @@ function ScoreEntryForm({ student, courseId, onClose }) {
     }
   };
 
-  // Function to handle special consideration checkbox change
+  // Function to handle Special Consideration checkbox change
   const handleSpecialConsiderationChange = (e) => {
     const { checked } = e.target;
 
-    // Disable or enable the exam input based on the checkbox status
-    setExamInputDisabled(checked);
+    // Disable the Exam Score field and clear its value if Special Consideration is checked
+    setExamScoreEnabled(!checked);
+    if (checked) {
+      setExamScore({ score: 0, maxScore: maxExamScore });
+    }
 
-    // Update the special consideration checkbox state
+    // Update the Special Consideration checkbox state
     setSpecialConsideration({
       isApplicable: checked,
       reason: specialConsideration.reason,
@@ -142,8 +148,8 @@ function ScoreEntryForm({ student, courseId, onClose }) {
             name="score"
             value={examScore.score}
             onChange={(e) => {
-              if (!examInputDisabled) {
-                // Only update if the exam input is not disabled
+              if (examScoreEnabled) {
+                // Only update if the Exam Score field is enabled
                 setExamScore({
                   ...examScore,
                   score: Math.min(Number(e.target.value), maxExamScore),
@@ -151,11 +157,11 @@ function ScoreEntryForm({ student, courseId, onClose }) {
               }
             }}
             className={`border rounded-md p-2 w-full ${
-              examInputDisabled ? "bg-gray-200" : ""
-            }`} // Disable the input when necessary
+              examScoreEnabled ? "" : "bg-gray-200"
+            }`}
             min="0"
             max={maxExamScore}
-            disabled={examInputDisabled} // Disable the input based on the state
+            disabled={!examScoreEnabled} // Disable the input based on the state
           />
         </div>
 
@@ -167,6 +173,7 @@ function ScoreEntryForm({ student, courseId, onClose }) {
             checked={specialConsideration.isApplicable}
             onChange={handleSpecialConsiderationChange} // Handle checkbox change
             className="mr-2"
+            disabled={!specialConsiderationEnabled} // Disable the checkbox based on the state
           />
           {specialConsideration.isApplicable && (
             <input
