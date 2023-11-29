@@ -18,6 +18,7 @@ import LecturerDashboard from "./components/pages/lecturer/HomePage";
 import LecturerCourses from "./components/pages/lecturer/LecturerCourses";
 import CourseRegistration from "./components/pages/student/CourseRegistration";
 import StudentDashboard from "./components/pages/student/HomePage";
+import Reports from "./components/pages/admin/Reports";
 const App = () => {
   const { role: userRole } = useUserRole();
 
@@ -32,6 +33,7 @@ const App = () => {
               <Route path="/admin/lecturers" element={<LecturerPage />} />
               <Route path="/admin/courses" element={<CoursePage />} />
               <Route path="/admin/edit-marks" element={<EditMarks />} />
+              <Route path="/admin/reports" element={<Reports />} />
             </Route>
             /
           </>
