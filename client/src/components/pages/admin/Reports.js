@@ -1,5 +1,6 @@
 import React from "react";
 import FailedReportTable from "./Reports/FailedReportTable";
+import SpecialConsiderationStudentsReportTable from "./Reports/SpecialConsiderationStudentsReportTable";
 import YearReportsTable from "./Reports/YearReportsTable";
 
 function Reports() {
@@ -9,6 +10,7 @@ function Reports() {
       {/* <SemesterReportsTable /> */}
       <YearReportsTable />
       <FailedReportTable />
+      <SpecialConsiderationStudentsReportTable />
     </div>
   );
 }
