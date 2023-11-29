@@ -104,23 +104,28 @@ exports.getScores = asyncHandler(async (req, res) => {
   const scoreRecord = await Score.findOne({
     student: studentId,
     course: courseId,
-  });
+  })
+    .populate("student") // Add other fields you want to populate
+    .populate({
+      path: "course",
+      select: "courseCode courseName academicYear semester lecturer",
+      populate: {
+        path: "lecturer",
+        select: "name", // Add other lecturer fields as needed
+      },
+    })
+    .populate("assignmentScores")
+    .populate("catScores")
+    .populate("examScore")
+    .populate("specialConsideration")
+    .populate("grade"); // Populate the grade field
 
   if (!scoreRecord) {
     res.status(404);
     throw new Error("Score record not found");
   }
 
-  res.status(200).json({
-    _id: scoreRecord._id,
-    student: scoreRecord.student,
-    course: scoreRecord.course,
-    assignmentScores: scoreRecord.assignmentScores,
-    catScores: scoreRecord.catScores,
-    examScore: scoreRecord.examScore,
-    specialConsideration: scoreRecord.specialConsideration,
-    grade: scoreRecord.grade, // Include the grade in the response
-  });
+  res.status(200).json(scoreRecord);
 });
 
 // Get all scores in the database
@@ -142,7 +147,8 @@ exports.getAllScores = asyncHandler(async (req, res) => {
     .populate("assignmentScores")
     .populate("catScores")
     .populate("examScore")
-    .populate("specialConsideration");
+    .populate("specialConsideration")
+    .populate("grade");
 
   // Modify the response to include the grade for each score record
   const scoresWithGrades = scores.map((scoreRecord) => ({

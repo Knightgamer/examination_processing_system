@@ -1,5 +1,20 @@
 // models/scoreModel.js
 const mongoose = require("mongoose");
+const validGrades = [
+  "A",
+  "A-",
+  "B+",
+  "B",
+  "B-",
+  "C+",
+  "C",
+  "C-",
+  "D+",
+  "D",
+  "D-",
+  "F",
+  "N/A",
+];
 
 const scoreSchema = mongoose.Schema(
   {
@@ -33,7 +48,11 @@ const scoreSchema = mongoose.Schema(
       isApplicable: { type: Boolean, default: false },
       reason: { type: String, default: "" }, // Reason like 'school fees' or 'medical'
     },
-    grade: String, // Add a field for storing the grade
+    grade: {
+      type: String,
+      enum: validGrades,
+      default: "N/A",
+    },
   },
   { timestamps: true }
 );

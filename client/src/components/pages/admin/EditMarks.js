@@ -14,6 +14,8 @@ function EditMarks() {
     axios
       .get("http://localhost:5000/scores")
       .then((response) => {
+        const grades = response.data.map((grade) => grade.grade); // Extract only the grades
+        console.log("Grades from backend:", grades);
         const organizedData = organizeData(response.data);
         setData(organizedData);
       })
