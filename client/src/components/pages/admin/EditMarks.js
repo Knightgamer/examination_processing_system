@@ -14,18 +14,16 @@ function EditMarks() {
     axios
       .get("http://localhost:5000/scores")
       .then((response) => {
-        const grades = response.data.map((grade) => grade.grade); // Extract only the grades
-        console.log("Grades from backend:", grades);
         const organizedData = organizeData(response.data);
         setData(organizedData);
       })
       .catch((error) => console.error("Error fetching scores:", error));
   }, []);
 
-  const organizeData = (grades) => {
+  const organizeData = (scores) => {
     const organized = {};
 
-    grades.forEach((grade) => {
+    scores.forEach((score) => {
       const {
         course,
         student,
@@ -33,7 +31,8 @@ function EditMarks() {
         catScores,
         examScore,
         specialConsideration,
-      } = grade;
+        grade,
+      } = score;
       const semester = course.semester || "Unknown Semester";
       const courseName = course.courseName || "Unknown Course";
       const lecturerName = course.lecturer
@@ -58,6 +57,7 @@ function EditMarks() {
         catScores,
         examScore,
         specialConsideration,
+        grade, // Include the grade
         course: course,
       });
     });
@@ -149,6 +149,7 @@ function EditMarks() {
                               ? "Yes"
                               : "No"}
                           </p>
+                          <p>Grades: {student.grade || "N/A"}</p>
                         </div>
                       </span>
                       <button
