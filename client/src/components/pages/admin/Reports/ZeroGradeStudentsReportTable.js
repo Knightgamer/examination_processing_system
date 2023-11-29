@@ -25,8 +25,8 @@ function ZeroGradeStudentsReportTable() {
 
       // Check if any of the scores are 0
       if (
-        assignmentScores.includes(0) ||
-        catScores.includes(0) ||
+        assignmentScores.some((scoreObj) => Number(scoreObj.score) === 0) ||
+        catScores.some((scoreObj) => Number(scoreObj.score) === 0) ||
         examScore.score === 0
       ) {
         return true;
