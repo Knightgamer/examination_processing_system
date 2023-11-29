@@ -12,8 +12,8 @@ function CoursePage() {
     semester: "",
     academicYear: "",
   });
-  const [lecturers, setLecturers] = useState([]);
-  const [lecturerMap, setLecturerMap] = useState({});
+  const [lecturers] = useState([]);
+  // const [setLecturerMap] = useState({});
   const [successMessage, setSuccessMessage] = useState(""); // Success message state
   const [errorMessage, setErrorMessage] = useState(""); // Error message state
 
@@ -47,26 +47,26 @@ function CoursePage() {
   };
 
   // Function to fetch the list of lecturers and create a lecturer ID to name map
-  const fetchLecturers = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/users/role/lecturer"
-      );
-      setLecturers(response.data);
-      const map = {};
-      response.data.forEach((lecturer) => {
-        map[lecturer._id] = lecturer.name;
-      });
-      setLecturerMap(map);
-    } catch (error) {
-      console.error("Error fetching lecturers:", error);
-    }
-  };
+  // const fetchLecturers = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:5000/users/role/lecturer"
+  //     );
+  //     setLecturers(response.data);
+  //     const map = {};
+  //     response.data.forEach((lecturer) => {
+  //       map[lecturer._id] = lecturer.name;
+  //     });
+  //     setLecturerMap(map);
+  //   } catch (error) {
+  //     console.error("Error fetching lecturers:", error);
+  //   }
+  // };
 
   const handleDelete = async (courseId) => {
     try {
       await axios.delete(`http://localhost:5000/courses/${courseId}`);
-      fetchLecturers();
+      // fetchLecturers();
       fetchCourses();
       setSuccessMessage("Course deleted successfully!"); // Set success message
       setErrorMessage(""); // Clear error message
@@ -80,7 +80,7 @@ function CoursePage() {
   // Fetch courses and lecturers when the component mounts
   useEffect(() => {
     fetchCourses();
-    fetchLecturers();
+    // fetchLecturers();
   }, []);
 
   return (
@@ -241,7 +241,7 @@ function CoursePage() {
                 {course.academicYear}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {lecturerMap[course.lecturer]}
+                {course.lecturer.name}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
