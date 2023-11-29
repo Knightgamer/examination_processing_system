@@ -11,6 +11,9 @@ router.get("/", courseController.getAllCourses);
 // Get a course by ID
 router.get("/:id", courseController.getCourseById);
 
+// Get a lecturer's course by ID
+router.get("/lecturer/:lecturerId", courseController.getCoursesByLecturer);
+
 // Update a course by ID
 router.put("/:id", courseController.updateCourseById);
 

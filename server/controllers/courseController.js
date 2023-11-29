@@ -39,7 +39,7 @@ const createCourse = async (req, res) => {
 // Get all courses with lecturer details populated
 const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find().populate("lecturer"); // Populate all fields of the lecturer
+    const courses = await Course.find().populate("lecturer", "name"); // Populate lecturer's name
 
     res.status(200).json(courses);
   } catch (error) {
