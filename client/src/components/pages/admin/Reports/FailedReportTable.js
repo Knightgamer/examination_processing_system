@@ -20,7 +20,7 @@ function YearReportsTable() {
     // Filter out students with grade 'F'
     const filteredStudents = data.filter((student) => {
       return (
-        student.grade !== "F" &&
+        student.grade === "F" &&
         (student.student.name
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
@@ -181,7 +181,7 @@ function YearReportsTable() {
   return (
     <div>
       <h2 className="text-3xl font-semibold text-center mb-8">
-        Yearly Reports
+        Failed Students Reports
       </h2>
 
       <div className="mb-3">
