@@ -33,6 +33,7 @@ const scoreSchema = mongoose.Schema(
       isApplicable: { type: Boolean, default: false },
       reason: { type: String, default: "" }, // Reason like 'school fees' or 'medical'
     },
+    grade: String, // Add a field for storing the grade
   },
   { timestamps: true }
 );
