@@ -13,10 +13,10 @@ function CoursePage() {
     academicYear: "",
   });
   const [lecturers, setLecturers] = useState([]);
-  const [lecturerMap, setLecturerMap] = useState({}); // Map lecturer IDs to names
-  const [courseAddStatus, setCourseAddStatus] = useState(null);
+  const [lecturerMap, setLecturerMap] = useState({});
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
+  const [errorMessage, setErrorMessage] = useState(""); // Error message state
 
-  // Function to handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -25,35 +25,17 @@ function CoursePage() {
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if all fields are filled
-    const isFormValid = Object.values(formData).every((value) => value !== "");
-
-    if (!isFormValid) {
-      setCourseAddStatus("Please fill in all fields.");
-      return;
-    }
-
     try {
-      // Send a POST request to add a new course
       await axios.post("http://localhost:5000/courses", formData);
-      setCourseAddStatus("Course Added Successfully");
-      // Clear the form data
-      setFormData({
-        courseCode: "",
-        courseName: "",
-        lecturer: "",
-        semester: "",
-        academicYear: "",
-      });
-      // Refresh the course list
       fetchCourses();
+      setSuccessMessage("Course added successfully!"); // Set success message
+      setErrorMessage(""); // Clear error message
     } catch (error) {
       console.error("Error adding course:", error);
-      setCourseAddStatus("Error adding course. Please try again.");
+      setErrorMessage("Error adding course. Please try again."); // Set error message
+      setSuccessMessage(""); // Clear success message
     }
   };
-
   // Function to fetch the list of courses
   const fetchCourses = async () => {
     try {
@@ -81,14 +63,17 @@ function CoursePage() {
     }
   };
 
-  const handleDelete = async (coursesId) => {
+  const handleDelete = async (courseId) => {
     try {
-      await axios.delete(`http://localhost:5000/courses/${coursesId}`);
-      // Fetch the updated list of lecturers after deletion
+      await axios.delete(`http://localhost:5000/courses/${courseId}`);
       fetchLecturers();
       fetchCourses();
+      setSuccessMessage("Course deleted successfully!"); // Set success message
+      setErrorMessage(""); // Clear error message
     } catch (error) {
       console.error("Error deleting course:", error);
+      setErrorMessage("Error deleting course. Please try again."); // Set error message
+      setSuccessMessage(""); // Clear success message
     }
   };
 
@@ -102,9 +87,17 @@ function CoursePage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Course Management</h1>
 
-      {courseAddStatus && (
-        <div className={`text-${courseAddStatus === 'Course Added Successfully' ? 'green' : 'red'}-500 mb-4`}>
-          {courseAddStatus}
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md mb-4">
+          {successMessage}
+        </div>
+      )}
+
+      {/* Error Message */}
+      {errorMessage && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-4">
+          {errorMessage}
         </div>
       )}
 
@@ -252,7 +245,7 @@ function CoursePage() {
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
-                  onClick={() => handleDelete(course._id)} // Pass the course ID to the delete function
+                  onClick={() => handleDelete(course._id)}
                   className="text-red-600 hover:text-red-800 flex items-center"
                 >
                   <RiDeleteBin2Line className="mr-1" /> Delete
