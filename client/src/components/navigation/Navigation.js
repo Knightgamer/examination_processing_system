@@ -74,7 +74,9 @@ const Navigation = () => {
       {/* Vertical Navigation Pane */}
       <nav className="w-64 min-h-screen bg-gray-700 text-white p-4">
         <div className="pl-4 pb-7 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-white-800">Shivam</h1>
+          <h1 className="text-xl font-semibold text-white-700">
+            Vini-$hiv-Khaw03
+          </h1>
         </div>
         <ul>
           {/* Student Links */}
