@@ -1,5 +1,6 @@
 import React from "react";
 import FailedReportTable from "./Reports/FailedReportTable";
+import RepeatCourseTable from "./Reports/RepeatCourseTable";
 import SpecialConsiderationStudentsReportTable from "./Reports/SpecialConsiderationStudentsReportTable";
 import YearReportsTable from "./Reports/YearReportsTable";
 import ZeroGradeStudentsReportTable from "./Reports/ZeroGradeStudentsReportTable";
@@ -13,6 +14,7 @@ function Reports() {
       <FailedReportTable />
       <SpecialConsiderationStudentsReportTable />
       <ZeroGradeStudentsReportTable />
+      <RepeatCourseTable />
     </div>
   );
 }
