@@ -8,7 +8,10 @@ import {
   TableRow,
 } from "@mui/material";
 import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import React, { useEffect, useState } from "react";
+
 function CourseRegistration() {
   // State variables to store courses, selected courses, and loading status
   const [courses, setCourses] = useState([]);
@@ -141,6 +144,52 @@ function CourseRegistration() {
   const filteredCourses = courses.filter(
     (course) => course.semester === selectedSemester
   );
+  const exportToPDF = () => {
+    // Create a new PDF document
+    const doc = new jsPDF();
+
+    // Define the columns for the PDF table, including Year and Semester
+    const columns = [
+      "Year",
+      "Semester",
+      "Course Code",
+      "Course Name",
+      "Lecturer",
+    ];
+    const data = [];
+
+    // Populate the data array with registered courses, including Year and Semester
+    Object.keys(coursesBySemester).forEach((semester) => {
+      coursesBySemester[semester].forEach((course) => {
+        data.push([
+          course.academicYear, // Year
+          course.semester, // Semester
+          course.courseCode,
+          course.courseName,
+          course.lecturer ? course.lecturer.name : "Not Assigned",
+        ]);
+      });
+    });
+
+    // Set the table position (x, y) and column widths
+    const y = 10;
+    const columnWidths = { 0: 20, 1: 30, 2: 40, 3: 80, 4: 60 }; // Adjust widths as needed
+
+    // Add the table to the PDF
+    doc.autoTable({
+      head: [columns],
+      body: data,
+      startY: y,
+      styles: { fontSize: 12 },
+      margin: { top: y },
+      tableWidth: "auto",
+      columnStyles: columnWidths,
+    });
+
+    // Save the PDF with a filename
+    doc.save("registered_courses.pdf");
+  };
+
   // Render loading message if data is still being fetched
   if (isLoading) {
     return <div>Loading courses...</div>;
@@ -197,7 +246,12 @@ function CourseRegistration() {
             Register Courses
           </button>
         </form>
-
+        <button
+          onClick={exportToPDF}
+          className="w-28 mt-8  bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-300 focus:outline-none focus:ring focus:ring-indigo-200"
+        >
+          Export PDF
+        </button>
         <div className="mt-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Registered Courses
